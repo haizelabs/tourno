@@ -57,7 +57,7 @@ Outputs PDF and PNG figures to `--output-dir`.
 
 ### 2. HealthBench RL training
 
-Trains a language model on HealthBench using pointwise, pairwise, or mixture (TournO) rewards. Requires a running [Tinker](https://github.com/PrimeIntellect-ai/tinker) service.
+Trains a language model on HealthBench using pointwise, pairwise, or mixture (TournO) rewards. Requires a running Tinker service.
 
 ```bash
 # Pointwise reward
