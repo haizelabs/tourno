@@ -1,0 +1,10 @@
+results/
+.cache/
+.env
+wandb/
+__pycache__/
+scrap/
+
+healthbench-rl*
+healthbench-results/
+figures/

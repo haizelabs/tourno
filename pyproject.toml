@@ -1,0 +1,25 @@
+[project]
+name = "tourno"
+version = "0.1.0"
+description = "Integrating pairwise rewards into RL training"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "docent-python>=0.1.55a0",
+    "matplotlib>=3.10.8",
+    "numpy>=2.4.3",
+    "tinker>=0.16.1",
+    "tinker-cookbook>=0.1.0",
+    "torch>=2.10.0",
+    "wandb>=0.25.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tourno"]
+
+[tool.hatch.metadata]
+allow-direct-references = true

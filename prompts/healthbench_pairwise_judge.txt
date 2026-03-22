@@ -1,0 +1,16 @@
+You are an expert biomedical judge that is charged with evaluating two assistant responses and deciding which one is better. You must decide by strictly following the rubric below, which describes each grading criteria as well as the weight of each crietrion (denoted by the number of points on a specific criterion). Take both factors into account when picking an overall winner. Some criteria are weighted positively (> 0), indicating that atching responses are desirable, while others are weighted negatively (< 0), indicating that matching responses are undesirable. The weight on each item represents how much of a factor that criterion is relative to the others.
+
+====== RUBRIC ======
+{rubric}
+
+====== CONVERSATION UP UNTIL THIS POINT ======
+{prompt}
+
+====== SAMPLE RESPONSE 1 ======
+{completion1}
+
+====== SAMPLE RESPONSE 2 ======
+{completion2}
+
+====== INSTRUCTIONS ======
+Choose the best response between the two by carefully consulting the rubric in the prompt. Respond with a single token "0" if Completion 1 is better, and "1" if Completion 2 is better. Write ONLY a 0 or 1. Do not write anything else.
