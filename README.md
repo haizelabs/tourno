@@ -1,6 +1,6 @@
-# TournO
+# TournO: Tournament Optimization for Non-Verifiable Reinforcement Learning
 
-Integrating pairwise rewards into RL training. TournO combines pointwise and pairwise LLM judges to produce reward signals for RLHF, using tournament-style comparisons (round-robin, ELO) to derive scalar rewards from pairwise preferences.
+TournO (**Tour**nament **O**ptimization) combines pointwise and pairwise LLM judges to produce reward signals in RL for LLMs, using tournament-style comparisons (round-robin, ELO) to derive scalar rewards from pairwise preferences.
 
 ## Setup
 
