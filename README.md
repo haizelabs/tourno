@@ -2,6 +2,8 @@
 
 TournO (**Tour**nament **O**ptimization) combines pointwise and pairwise LLM judges to produce reward signals in RL for LLMs, using tournament-style comparisons (round-robin, ELO) to derive scalar rewards from pairwise preferences.
 
+See the original blog post: [https://www.haizelabs.com/blog/tourno](https://www.haizelabs.com/blog/tourno)
+
 ![TournO overview](assets/images/tourno-overview.png)
 
 ## Setup
@@ -48,13 +50,13 @@ uv run scripts/synthetic-experiments/pointwise_vs_pairwise.py \
 
 Key flags:
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--seeds` | 5 | Number of random seeds |
-| `--h` | 5 | Bottleneck (hidden) dimension |
-| `--separation` | 2.0 | Distance between cluster centroids |
-| `--n-train` | 50000 | Number of training pairs |
-| `--epochs` | 30 | Training epochs per seed |
+| Flag           | Default | Description                        |
+| -------------- | ------- | ---------------------------------- |
+| `--seeds`      | 5       | Number of random seeds             |
+| `--h`          | 5       | Bottleneck (hidden) dimension      |
+| `--separation` | 2.0     | Distance between cluster centroids |
+| `--n-train`    | 50000   | Number of training pairs           |
+| `--epochs`     | 30      | Training epochs per seed           |
 
 Outputs PDF and PNG figures to `--output-dir`.
 
@@ -81,19 +83,19 @@ uv run scripts/healthbench-experiments/train_no_reasoning_grade.py \
 
 Key flags:
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--judge-type` | pointwise | Reward type: `pointwise`, `pairwise`, or `mixture` |
-| `--judge-model` | gpt-4.1-2025-04-14 | LLM judge for reward scoring |
-| `--pairwise-alpha` | 0.5 | Mixing coefficient for TournO (higher = more pointwise) |
-| `--base-model` | Qwen/Qwen3-8B | Model to train |
-| `--n-steps` | 100 | Training steps |
-| `--group-size` | 8 | Completions per prompt (for pairwise comparisons) |
-| `--batch-size` | 8 | Prompt groups per training step |
-| `--num-workers` | 8 | Parallel sampling workers |
-| `--save-every` | 20 | Checkpoint interval |
-| `--log-path` | ./healthbench-rl | Checkpoint and log directory |
-| `--wandb-project` | None | Weights & Biases project (optional) |
+| Flag               | Default            | Description                                             |
+| ------------------ | ------------------ | ------------------------------------------------------- |
+| `--judge-type`     | pointwise          | Reward type: `pointwise`, `pairwise`, or `mixture`      |
+| `--judge-model`    | gpt-4.1-2025-04-14 | LLM judge for reward scoring                            |
+| `--pairwise-alpha` | 0.5                | Mixing coefficient for TournO (higher = more pointwise) |
+| `--base-model`     | Qwen/Qwen3-8B      | Model to train                                          |
+| `--n-steps`        | 100                | Training steps                                          |
+| `--group-size`     | 8                  | Completions per prompt (for pairwise comparisons)       |
+| `--batch-size`     | 8                  | Prompt groups per training step                         |
+| `--num-workers`    | 8                  | Parallel sampling workers                               |
+| `--save-every`     | 20                 | Checkpoint interval                                     |
+| `--log-path`       | ./healthbench-rl   | Checkpoint and log directory                            |
+| `--wandb-project`  | None               | Weights & Biases project (optional)                     |
 
 ### 3. HealthBench evaluation and plotting
 
