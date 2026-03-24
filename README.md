@@ -2,6 +2,8 @@
 
 TournO (**Tour**nament **O**ptimization) combines pointwise and pairwise LLM judges to produce reward signals in RL for LLMs, using tournament-style comparisons (round-robin, ELO) to derive scalar rewards from pairwise preferences.
 
+![TournO overview](assets/images/tourno-overview.png)
+
 ## Setup
 
 Requires Python 3.12+ and [uv](https://docs.astral.sh/uv/).
@@ -16,6 +18,7 @@ For the HealthBench experiments, you also need API keys:
 cp .env.example .env
 # Fill in OPENAI_API_KEY (for training judges)
 # Fill in OPENROUTER_API_KEY (for evaluation judges and rephrasing)
+# Fill in TINKER_API_KEY (for Tinker service access)
 ```
 
 ## Repository structure
