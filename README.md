@@ -150,9 +150,10 @@ If you reference this work, please cite the blog post:
 
 ```bibtex
 @misc{feng2026tourno,
-  title={TournO},
-  author={Feng, Dylan and Kumar, Bhavesh and Tang, Leonard},
-  year={2026},
-  howpublished={\url{https://www.haizelabs.com/blog/tourno}}
+  author       = {Feng, Dylan and Kumar, Bhavesh and Tang, Leonard},
+  title        = {TournO: Tournament Optimization for Reinforcement Learning in Non-Verifiable Domains},
+  year         = {2026},
+  url          = {https://www.haizelabs.com/blog/tourno},
+  organization = {Haize Labs}
 }
 ```
