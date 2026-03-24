@@ -1,5 +1,7 @@
 # TournO: Tournament Optimization for Non-Verifiable Reinforcement Learning
 
+Authors: Dylan Feng, Bhavesh Kumar, Leonard Tang
+
 TournO (**Tour**nament **O**ptimization) combines pointwise and pairwise LLM judges to produce reward signals in RL for LLMs, using tournament-style comparisons (round-robin, ELO) to derive scalar rewards from pairwise preferences.
 
 See the original blog post: [https://www.haizelabs.com/blog/tourno](https://www.haizelabs.com/blog/tourno)
@@ -140,4 +142,17 @@ uv run scripts/healthbench-experiments/length_bias_analysis.py \
     --judge-model anthropic/claude-opus-4.5 \
     --num-completions 16 \
     --output-dir healthbench-results/length-bias
+```
+
+## Citation
+
+If you reference this work, please cite the blog post:
+
+```bibtex
+@misc{feng2026tourno,
+  title={TournO},
+  author={Feng, Dylan and Kumar, Bhavesh and Tang, Leonard},
+  year={2026},
+  howpublished={\url{https://www.haizelabs.com/blog/tourno}}
+}
 ```
