@@ -5,7 +5,6 @@ description = "Integrating pairwise rewards into RL training"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "docent-python>=0.1.55a0",
     "matplotlib>=3.10.8",
     "numpy>=2.4.3",
     "tinker>=0.16.1",

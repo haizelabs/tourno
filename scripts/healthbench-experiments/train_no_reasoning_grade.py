@@ -4,7 +4,7 @@ import logging
 import math
 import os
 from pathlib import Path
-from typing import Awaitable, Callable
+from typing import Awaitable, Callable, cast
 
 import numpy as np
 import tinker
@@ -18,7 +18,7 @@ from tinker_cookbook.renderers import get_renderer
 from tinker_cookbook.tokenizer_utils import get_tokenizer
 from worker import group_worker
 
-from pioneer.logger import get_logger, init_docent, log_agent_run, setup, trace
+from pioneer.logger import get_logger, setup, trace
 from pioneer.loop import training_loop
 from pioneer.types import TrainConfig, TrainingQueue
 from tourno.tournament import (
@@ -55,20 +55,6 @@ async def get_healthbench_pointwise_rewards(
     score_range = max(1e-4, max_score - min_score)
 
     rewards = [max(0.0, min(1.0, (s - min_score) / score_range)) for s in raw_scores]
-
-    for i, completion in enumerate(completions):
-        log_agent_run(
-            sample.prompt + [{"content": completion, "role": "assistant"}],
-            {
-                "type": "pointwise_reward",
-                "prompt_id": sample.prompt_id,
-                "row_id": sample.row_id,
-                "rollout_id": rollout_ids[i],
-                "raw_score": raw_scores[i],
-                "reward": rewards[i],
-            },
-        )
-
     return rewards, len(completions)
 
 
@@ -84,19 +70,6 @@ async def get_healthbench_pairwise_rewards(
         completions,
         judge_fn=lambda pairwise_samples: judge(pairwise_samples, sample.rubrics),
     )
-
-    for i, completion in enumerate(completions):
-        log_agent_run(
-            sample.prompt + [{"content": completion, "role": "assistant"}],
-            {
-                "type": "pairwise_reward",
-                "prompt_id": sample.prompt_id,
-                "row_id": sample.row_id,
-                "rollout_id": rollout_ids[i],
-                "reward": rewards[i],
-            },
-        )
-
     return rewards, n_calls
 
 
@@ -184,7 +157,7 @@ async def main(
         training_loop_task.result()
         return
 
-    assert sampling_client_with_step is not None
+    assert cast(sampling_client_with_step, tuple[tinker.SamplingClient, int]) is not None
     log.info("Sampling client ready, starting workers")
 
     ### Start producer and workers ###
@@ -259,7 +232,6 @@ def parse_args() -> argparse.Namespace:
     ### Logging parameters ###
     p.add_argument("--log-level", type=str, default="INFO")
     p.add_argument("--log-filter", type=str, default=None)
-    p.add_argument("--docent-collection", type=str, default=None)
 
     ### Training parameters ###
     p.add_argument("--base-model", type=str, default="Qwen/Qwen3-8B")
@@ -327,12 +299,6 @@ if __name__ == "__main__":
         wandb_project=args.wandb_project,
     )
     config.log_path = (Path(config.log_path) / config.run_name).as_posix()
-
-    docent_collection = args.docent_collection
-    if not docent_collection and os.environ.get("DOCENT_API_KEY"):
-        docent_collection = config.run_name
-    if docent_collection:
-        init_docent(docent_collection)
 
     grader_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     if args.judge_type == "mixture":

@@ -48,7 +48,6 @@ class TrainConfig(pydantic.BaseModel):
     log_path: str = "/tmp/swebench-rl"
     ttl_seconds: int | None = 604800
     wandb_project: str | None = None
-    docent_collection: str | None = None
 
     @property
     def run_name(self) -> str:

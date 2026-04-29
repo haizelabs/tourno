@@ -3,6 +3,8 @@ import functools
 import logging
 import re
 import sys
+import threading
+from typing import Any
 
 ### CLI Logging ###
 _LOGGER_NAME = "swebench_experiments"
@@ -137,40 +139,51 @@ def trace(fn):
     return wrapper
 
 
-### Docent Logging ###
-_docent_writer = None
+### W&B incremental trace tables ###
+# ``log_trace(name, **fields)`` appends a row to a named ``wandb.Table``
+# created in INCREMENTAL mode. ``flush_traces(step)`` calls ``wandb.log`` on
+# every registered table; only rows added since the last flush get uploaded.
+# All three functions are no-ops if traces aren't initialized.
+#
+# ``current_step`` is a ContextVar that workers set before invoking judges, so
+# judge trace rows can be stamped with the current training step without
+# having to thread the value through every reward callable.
+
+current_step: contextvars.ContextVar[int] = contextvars.ContextVar("current_step", default=-1)
+
+_trace_tables: dict[str, Any] = {}
+_trace_schemas: dict[str, list[str]] = {}
+_trace_lock = threading.Lock()
 
 
-def init_docent(collection_name: str) -> None:
-    global _docent_writer
-    import docent
+def init_traces(schemas: dict[str, list[str]]) -> None:
+    """Register one INCREMENTAL ``wandb.Table`` per ``name`` with given columns."""
+    import wandb
 
-    _docent_writer = docent.init(collection_name=collection_name)
-    get_logger().info(f"Docent logging enabled: collection={collection_name}")
-
-
-def finish_docent() -> None:
-    global _docent_writer
-    if _docent_writer is not None:
-        _docent_writer.finish()
-        _docent_writer = None
+    global _trace_tables, _trace_schemas
+    _trace_schemas = schemas
+    _trace_tables = {
+        name: wandb.Table(columns=cols, log_mode="INCREMENTAL") for name, cols in schemas.items()
+    }
+    get_logger().info(f"Trace tables initialized: {sorted(schemas)}")
 
 
-def log_agent_run(
-    messages: list[dict[str, str]],
-    metadata: dict,
-) -> None:
-    if _docent_writer is None:
+def log_trace(name: str, **fields: Any) -> None:
+    """Append one row to the named trace table. Missing columns are ``None``."""
+    table = _trace_tables.get(name)
+    if table is None:
         return
+    cols = _trace_schemas[name]
+    row = [fields.get(c) for c in cols]
+    with _trace_lock:
+        table.add_data(*row)
 
-    from docent.data_models import AgentRun, Transcript
-    from docent.data_models.chat import parse_chat_message
 
-    chat_messages = [
-        parse_chat_message({"role": m["role"], "content": m["content"]}) for m in messages
-    ]
-    run = AgentRun(
-        transcripts=[Transcript(messages=chat_messages)],
-        metadata=metadata,
-    )
-    _docent_writer.log_agent_runs([run])
+def flush_traces(step: int) -> None:
+    """Upload only the rows added since the last flush (per INCREMENTAL semantics)."""
+    if not _trace_tables:
+        return
+    import wandb
+
+    with _trace_lock:
+        wandb.log(dict(_trace_tables), step=step)

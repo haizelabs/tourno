@@ -6,7 +6,6 @@ from pathlib import Path
 
 from healthbench_types import Rubric
 from openai import AsyncOpenAI
-from pioneer.logger import get_logger, log_agent_run, trace
 from tenacity import (
     before_sleep_log,
     retry,
@@ -15,6 +14,7 @@ from tenacity import (
     wait_exponential,
 )
 
+from pioneer.logger import get_logger, trace
 from tourno.types import PairwiseComparison
 
 DEFAULT_POINTWISE_PROMPT = Path("./prompts/healthbench_pointwise_judge.txt").read_text()
@@ -99,14 +99,7 @@ class HealthBenchPointwiseJudge:
             content = response.choices[0].message.content
             assert content is not None
             self.call_count += 1
-            score = self._parse_score(content)
-
-            log_agent_run(
-                messages + [{"role": "assistant", "content": content}],
-                {"type": "pointwise_judge", "model": self.model, "score": score},
-            )
-
-            return score
+            return self._parse_score(content)
 
     @trace
     async def __call__(
@@ -187,14 +180,7 @@ class HealthBenchPairwiseJudge:
             content = response.choices[0].message.content
             assert content is not None
             self.call_count += 1
-            winner = self._parse_winner(content)
-
-            log_agent_run(
-                messages + [{"role": "assistant", "content": content}],
-                {"type": "pairwise_judge", "model": self.model, "winner": winner},
-            )
-
-            return winner
+            return self._parse_winner(content)
 
     @trace
     async def __call__(

@@ -3,24 +3,32 @@ import json
 import math
 import os
 import time
-from typing import Any, Callable, cast
+from typing import Any, Awaitable, Callable, cast
 
 import numpy as np
 import scipy.signal
 import tinker
 import torch
-import wandb
 from tinker import types as tinker_types
 from tinker_cookbook.display import colorize_example
 from tinker_cookbook.tokenizer_utils import get_tokenizer
 
-from pioneer.logger import get_logger, log_metrics, trace
+import wandb
+from pioneer.logger import (
+    flush_traces,
+    get_logger,
+    init_traces,
+    log_metrics,
+    trace,
+)
 from pioneer.models import get_sampling_client, get_training_client
 from pioneer.types import (
     TrainConfig,
     TrainingQueue,
     TrajectoryGroup,
 )
+
+PostSaveCallback = Callable[[int, tinker.SamplingClient], Awaitable[dict[str, Any]]]
 
 # ---------------------------------------------------------------------------
 # Datum construction (multi-turn)
@@ -281,10 +289,12 @@ async def save_checkpoint_and_get_sampling_client(
     log_path: str,
     save_every: int,
     ttl_seconds: int | None = None,
+    force: bool = False,
 ) -> tuple[tinker.SamplingClient, dict[str, Any]]:
     log = get_logger()
     metrics: dict[str, Any] = {}
-    if save_every > 0 and step > 0 and step % save_every == 0:
+    should_save = force or (save_every > 0 and step > 0 and step % save_every == 0)
+    if should_save:
         name = f"{step:06d}"
         state_future = await training_client.save_state_async(name, ttl_seconds=ttl_seconds)
         sampler_future = await training_client.save_weights_for_sampler_async(
@@ -360,6 +370,8 @@ async def training_loop(
     config: TrainConfig,
     training_queue: TrainingQueue,
     update_sampling_client: Callable[[tinker.SamplingClient, int], None],
+    post_save_callback: PostSaveCallback | None = None,
+    trace_schemas: dict[str, list[str]] | None = None,
 ) -> None:
     log = get_logger("train")
     log.info("Starting training loop...")
@@ -371,6 +383,8 @@ async def training_loop(
             name=config.run_name,
             config=config.model_dump(),
         )
+        if trace_schemas:
+            init_traces(trace_schemas)
 
     ### Write base model metadata ###
     os.makedirs(config.log_path, exist_ok=True)
@@ -394,6 +408,18 @@ async def training_loop(
         ttl_seconds=config.ttl_seconds,
     )
     update_sampling_client(sampling_client, -1)
+    if post_save_callback is not None:
+        log.info("Running post-save callback for initial model (step 0)")
+        try:
+            eval_metrics = await post_save_callback(0, sampling_client)
+        except Exception:
+            log.exception("Post-save callback failed at step 0; continuing training")
+            eval_metrics = {}
+        if eval_metrics:
+            log_metrics(eval_metrics, step=0)
+            if wandb_run is not None:
+                wandb.log(eval_metrics, step=0)
+                flush_traces(step=0)
 
     ### Initialize reference client if kl_coef > 0 ###
     reference_client: tinker.SamplingClient | None = None
@@ -487,6 +513,14 @@ async def training_loop(
         update_sampling_client(sampling_client, step)
         metrics.update(checkpoint_metrics)
 
+        ### Post-save eval callback (only fires when an actual checkpoint was saved) ###
+        if "checkpoint" in checkpoint_metrics and post_save_callback is not None:
+            try:
+                eval_metrics = await post_save_callback(step + 1, sampling_client)
+                metrics.update(eval_metrics)
+            except Exception:
+                log.exception(f"Post-save callback failed at step {step + 1}; continuing training")
+
         ### Post-update KL ###
         if config.compute_post_kl:
             post_kl_metrics = await compute_post_kl(datums, sampling_client)
@@ -496,8 +530,36 @@ async def training_loop(
         log_metrics(metrics, step=step)
         if wandb_run is not None:
             wandb.log(metrics, step=step)
+            flush_traces(step=step)
 
         step += 1
+
+    final_step = config.n_steps
+    already_saved = config.save_every > 0 and final_step > 0 and final_step % config.save_every == 0
+    if not already_saved:
+        log.info(f"Saving final checkpoint at step {final_step}")
+        sampling_client, final_save_metrics = await save_checkpoint_and_get_sampling_client(
+            training_client,
+            final_step,
+            config.log_path,
+            config.save_every,
+            config.ttl_seconds,
+            force=True,
+        )
+        update_sampling_client(sampling_client, final_step - 1)
+
+        if "checkpoint" in final_save_metrics and post_save_callback is not None:
+            log.info(f"Running post-save callback for final checkpoint (step {final_step})")
+            try:
+                eval_metrics = await post_save_callback(final_step, sampling_client)
+            except Exception:
+                log.exception(f"Post-save callback failed at final step {final_step}; continuing")
+                eval_metrics = {}
+            merged = {**final_save_metrics, **eval_metrics}
+            log_metrics(merged, step=final_step - 1)
+            if wandb_run is not None:
+                wandb.log(merged, step=final_step - 1)
+                flush_traces(step=final_step - 1)
 
     if wandb_run is not None:
         wandb_run.finish()
