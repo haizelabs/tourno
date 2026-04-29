@@ -209,7 +209,7 @@ async def dpo_train_step(
 @trace
 async def training_loop(
     config: DPOConfig,
-    data_loader: Iterable[tuple[int, Sequence[DPOPair]]],
+    train_data: Iterable[tuple[int, Sequence[DPOPair]]],
     on_checkpoint_save: Callable[[int, str, str], Awaitable[None] | None] | None = None,
 ) -> None:
     log = get_logger("dpo")
@@ -241,7 +241,7 @@ async def training_loop(
 
     ### Main training loop ###
     completed_step = 0
-    for step, (epoch, batch) in enumerate(data_loader):
+    for step, (epoch, batch) in enumerate(train_data):
         if step >= config.n_steps:
             break
         if len(batch) != config.batch_size:
