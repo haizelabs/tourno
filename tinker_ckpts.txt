@@ -1,0 +1,128 @@
+TournO paper — Tinker LoRA checkpoint registry
+================================================
+
+Base model:        Qwen/Qwen3-8B
+LoRA rank:         32
+Renderer:          qwen3_disable_thinking
+Training data:     datasets/cwbench_all.jsonl  (OWB ∖ cwbench v3, 1100 prompts)
+Test data:         datasets/cwbench_test.jsonl (cwbench v3, 321 prompts)
+Judge:             anthropic/claude-sonnet-4.5 (via OpenRouter)
+Hyperparameters:   lr=4e-5 const, batch=8, group=8, max_tokens=4096, kl_coef=0.0, n_epochs=1
+Train script:      scripts/cwbench-experiments/train_no_reasoning_grade.py
+Eval script:       scripts/cwbench-experiments/eval_on_test.py
+
+
+───────────────────────────────────────────────────────────────────────────────
+POINTWISE GRPO  (--judge-type pointwise)
+wandb:  https://wandb.ai/Haize-Research/tourno-cwbench/runs/a5b40ozk  
+───────────────────────────────────────────────────────────────────────────────
+
+Run UUID: 256b83fb-b042-5997-a39c-993693d6cda4
+
+step  20    sampler  tinker://256b83fb-b042-5997-a39c-993693d6cda4:train:0/sampler_weights/000020
+step  40    sampler  tinker://256b83fb-b042-5997-a39c-993693d6cda4:train:0/sampler_weights/000040
+step  60    sampler  tinker://256b83fb-b042-5997-a39c-993693d6cda4:train:0/sampler_weights/000060
+step  80    sampler  tinker://256b83fb-b042-5997-a39c-993693d6cda4:train:0/sampler_weights/000080
+step 100    sampler  tinker://256b83fb-b042-5997-a39c-993693d6cda4:train:0/sampler_weights/000100
+step 120    sampler  tinker://256b83fb-b042-5997-a39c-993693d6cda4:train:0/sampler_weights/000120  ← FINAL eval'd
+
+state_path (for resuming training, swap sampler_weights → weights):
+  step 20:  tinker://256b83fb-b042-5997-a39c-993693d6cda4:train:0/weights/000020
+  step 40:  tinker://256b83fb-b042-5997-a39c-993693d6cda4:train:0/weights/000040
+  step 60:  tinker://256b83fb-b042-5997-a39c-993693d6cda4:train:0/weights/000060
+  step 80:  tinker://256b83fb-b042-5997-a39c-993693d6cda4:train:0/weights/000080
+  step 100: tinker://256b83fb-b042-5997-a39c-993693d6cda4:train:0/weights/000100
+  step 120: tinker://256b83fb-b042-5997-a39c-993693d6cda4:train:0/weights/000120
+
+
+───────────────────────────────────────────────────────────────────────────────
+TOURNO MIXTURE  (--judge-type mixture --pairwise-alpha 2.0)
+wandb:  https://wandb.ai/Haize-Research/tourno-cwbench/runs/8nt7jyo6  (run, 138 steps)
+───────────────────────────────────────────────────────────────────────────────
+
+Run UUID: c945db5e-af90-5e76-973b-51a43b39fcd4
+
+step  20    sampler  tinker://c945db5e-af90-5e76-973b-51a43b39fcd4:train:0/sampler_weights/000020
+step  40    sampler  tinker://c945db5e-af90-5e76-973b-51a43b39fcd4:train:0/sampler_weights/000040
+step  60    sampler  tinker://c945db5e-af90-5e76-973b-51a43b39fcd4:train:0/sampler_weights/000060
+step  80    sampler  tinker://c945db5e-af90-5e76-973b-51a43b39fcd4:train:0/sampler_weights/000080  ← eval'd (intermediate)
+step 100    sampler  tinker://c945db5e-af90-5e76-973b-51a43b39fcd4:train:0/sampler_weights/000100
+step 120    sampler  tinker://c945db5e-af90-5e76-973b-51a43b39fcd4:train:0/sampler_weights/000120  ← FINAL eval'd
+
+state_path (for resuming training, swap sampler_weights → weights):
+  step 20:  tinker://c945db5e-af90-5e76-973b-51a43b39fcd4:train:0/weights/000020
+  step 40:  tinker://c945db5e-af90-5e76-973b-51a43b39fcd4:train:0/weights/000040
+  step 60:  tinker://c945db5e-af90-5e76-973b-51a43b39fcd4:train:0/weights/000060
+  step 80:  tinker://c945db5e-af90-5e76-973b-51a43b39fcd4:train:0/weights/000080
+  step 100: tinker://c945db5e-af90-5e76-973b-51a43b39fcd4:train:0/weights/000100
+  step 120: tinker://c945db5e-af90-5e76-973b-51a43b39fcd4:train:0/weights/000120
+
+
+───────────────────────────────────────────────────────────────────────────────
+PURE PAIRWISE  (--judge-type pairwise)
+wandb:  https://wandb.ai/Haize-Research/tourno-cwbench/runs/wjbcizqg
+───────────────────────────────────────────────────────────────────────────────
+
+Run UUID: 33453dab-ac43-51b9-82dd-c3cf19474ab0
+
+step  20    sampler  tinker://33453dab-ac43-51b9-82dd-c3cf19474ab0:train:0/sampler_weights/000020
+step  40    sampler  tinker://33453dab-ac43-51b9-82dd-c3cf19474ab0:train:0/sampler_weights/000040
+step  60    sampler  tinker://33453dab-ac43-51b9-82dd-c3cf19474ab0:train:0/sampler_weights/000060
+step  80    sampler  tinker://33453dab-ac43-51b9-82dd-c3cf19474ab0:train:0/sampler_weights/000080
+step 100    sampler  tinker://33453dab-ac43-51b9-82dd-c3cf19474ab0:train:0/sampler_weights/000100
+step 120    sampler  tinker://33453dab-ac43-51b9-82dd-c3cf19474ab0:train:0/sampler_weights/000120  ← FINAL eval'd
+
+state_path (for resuming training, swap sampler_weights → weights):
+  step 20:  tinker://33453dab-ac43-51b9-82dd-c3cf19474ab0:train:0/weights/000020
+  step 40:  tinker://33453dab-ac43-51b9-82dd-c3cf19474ab0:train:0/weights/000040
+  step 60:  tinker://33453dab-ac43-51b9-82dd-c3cf19474ab0:train:0/weights/000060
+  step 80:  tinker://33453dab-ac43-51b9-82dd-c3cf19474ab0:train:0/weights/000080
+  step 100: tinker://33453dab-ac43-51b9-82dd-c3cf19474ab0:train:0/weights/000100
+  step 120: tinker://33453dab-ac43-51b9-82dd-c3cf19474ab0:train:0/weights/000120
+
+
+───────────────────────────────────────────────────────────────────────────────
+HOW TO LOAD A CHECKPOINT
+───────────────────────────────────────────────────────────────────────────────
+
+# Inference / eval (sampler_weights):
+import tinker
+client = tinker.ServiceClient()
+sampling_client = client.create_sampling_client(
+    model_path="tinker://256b83fb-b042-5997-a39c-993693d6cda4:train:0/sampler_weights/000120"
+)
+
+# Resume training (state weights):
+training_client = client.create_training_client_from_state(
+    model_path="tinker://256b83fb-b042-5997-a39c-993693d6cda4:train:0/weights/000120",
+    base_model="Qwen/Qwen3-8B",
+    lora_rank=32,
+)
+
+# Or run our eval script end-to-end:
+# uv run scripts/cwbench-experiments/eval_on_test.py \
+#   --label pointwise \
+#   --model-path "tinker://256b83fb-b042-5997-a39c-993693d6cda4:train:0/sampler_weights/000120" \
+#   --out cwbench-rl/eval/pointwise.json
+
+
+───────────────────────────────────────────────────────────────────────────────
+EVAL RESULTS (cwbench v3 official rubric, judge: Sonnet 4.5)
+───────────────────────────────────────────────────────────────────────────────
+
+| Model                         | overall (0-20) | eqbench (0-100) | 95% CI       | Δ vs base |
+|-------------------------------|----------------|-----------------|--------------|-----------|
+| Qwen3-8B base (no training)   |  8.148         | 40.74           | ±0.54        |  —        |
+| Pointwise GRPO    (step 120)  | 10.468         | 52.34           | ±0.89        | +11.60    |
+| Pairwise GRPO     (step 120)  | 10.349         | 51.75           | ±1.20        | +11.01    |
+| TournO mixture    (step 120)  | 11.444         | 57.22           | ±1.32        | +16.48 ← winner |
+
+Pairwise differences (95% CI from bootstrap n=1000):
+- Pairwise − Pointwise:  −0.59 ± 1.51   (statistically TIED)
+- TournO  − Pointwise:   +4.88 ± 1.66   ✓ significant
+- TournO  − Pairwise:    +5.47 ± 1.82   ✓ significant
+- TournO  − Base:       +16.48 ± 1.48   ✓ significant
+
+The MIXTURE is the magic, not the pairwise component alone.
+
+Eval JSON outputs in cwbench-rl/eval/{base,pointwise,tourno,tourno-step120,pairwise}.json

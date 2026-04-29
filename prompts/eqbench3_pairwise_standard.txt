@@ -1,0 +1,34 @@
+Your task is to critically examine two assistant responses to the same scenario and decide which displays each trait more strongly.
+
+[SCENARIO]
+{prompt}
+[/SCENARIO]
+
+[RESPONDENT A0493]
+{completion1}
+[/RESPONDENT A0493]
+
+[RESPONDENT A0488]
+{completion2}
+[/RESPONDENT A0488]
+
+Compare the relative ability of each respondent on these criteria:
+1. Demonstrated empathy (not just performative)
+2. Pragmatic EI
+3. Depth of insight
+4. Social dexterity
+5. Emotional reasoning
+6. Appropriate validation and/or challenging for the scene
+7. Message tailoring: appropriate targeting of response to where the user is at
+8. Overall EQ
+
+Judging instructions:
+- You must always pick a winner for each criterion (no draws).
+- For the "winner & disparity rating" output, use a plus-based scale ("+" / "++" / "+++" / "++++" / "+++++") after the winner's code (A0493 or A0488) to indicate how strongly they win that criterion.
+  - e.g. "A0493++" = somewhat stronger, "A0488+++++" = overwhelmingly stronger.
+- Responses may be truncated; judge what is there.
+- A highly detailed analytical response to the user isn't always appropriate in an organic chat. Use your judgement.
+
+Output ONLY valid JSON in this exact format, no prose, no trailing commas:
+
+{{"chain_of_thought_reasoning": "<brief reasoning>", "demonstrated_empathy": "<winner & disparity>", "pragmatic_ei": "<winner & disparity>", "depth_of_insight": "<winner & disparity>", "social_dexterity": "<winner & disparity>", "emotional_reasoning": "<winner & disparity>", "appropriate_validating_challenging": "<winner & disparity>", "message_tailoring": "<winner & disparity>", "overall_eq": "<winner & disparity>"}}

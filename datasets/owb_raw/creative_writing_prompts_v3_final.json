@@ -1,0 +1,377 @@
+{
+    "2": {
+        "writing_prompt": "Historical Fiction: Write a scene from a story set during the height of the Roman Empire, focusing on a slice of a day in the life of a gladiator. Do not write a combat scene. Use sensory details to capture the sights, sounds, and smells of ancient Rome. Explore the gladiator's thoughts and emotions. The story should also touch on the larger political and social issues of the time period. The piece should feel like a slice of a larger story. <SEED> First person, past tense, 1000 words.",
+        "seed_modifiers": [
+            "Include references to the gladiator's favorite Roman deity or mythological figure.",
+            "Describe the gladiator's weapon of choice and its significance to them.",
+            "Mention a superstition or ritual the gladiator performs before each fight.",
+            "Include a description of a unique scar or tattoo the gladiator has.",
+            "Include a brief mention of the gladiator's life before becoming a gladiator.",
+            "Use vivid, sensory language to describe the sights, sounds, and smells of ancient Rome.",
+            "Include a conversation between the gladiator and a fellow gladiator or a servant.",
+            "Mention a specific historical event or figure from the time period.",
+            "Focus on the gladiator's thoughts and emotions during a moment of solitude.",
+            "Use a mix of short, punchy sentences and longer, more descriptive ones to create a dynamic pace."
+        ]
+    },
+    "1": {
+        "writing_prompt": "Fairy Tale Retelling: Rewrite the story of Hansel and Gretel from the perspective of the witch, in the format of raw, terse stream-of-consciousness diary entries written in her style & voice. She may at times be an unreliable narrator. She sees herself as fundamentally good and portrays herself sympathetically; she believes she is misunderstood and has a tragic backstory. Include snippets of dialogue between the witch and the children in a way that feels natural for a diary entry. You may take liberties with the original story. The witch will not die in this version; she needs to be able to write her final entry. It will not be happily ever after. <SEED> 1000 words.",
+        "seed_modifiers": [
+            "Avoid using elements of magical realism in the story.",
+            "The witch sometimes refers to herself in the third person.",
+            "The witch has poor writing abilities and makes frequent spelling and grammatical errors.",
+            "Mention a superstition the witch believes in.",
+            "Include a brief mention of a childhood memory the witch has.",
+            "Include a description of the witch's unique fashion sense.",
+            "Mention a peculiar item the witch keeps in her pocket.",
+            "Set the story in Salem, Massachusetts, in the late 1600s.",
+            "Use a sarcastic and self-deprecating tone throughout the witch's diary entries.",
+            "Include frequent references to the witch's love for a specific type of tea."
+        ]
+    },
+    "5": {
+        "writing_prompt": "Epistolary Narrative: Write a story told entirely through a series of brief correspondences: telegrams or letters or emails between two characters. The correspondence should span several months or years, and reveal a gradually unfolding plot. Use distinct voices for each character, and include details that provide insight into their personalities and motivations. The story should build to an emotional climax, and the final letter should provide a satisfying resolution. The setting is a lighthouse keeper writing to his mother. He is working class and Scottish. He is struggling with the isolation of his posting. Write naturally and without cliches. <SEED> 1000 words.",
+        "seed_modifiers": [            
+            "Mention a specific landmark or geographical feature near the lighthouse.",
+            "Include a description of a unique item or keepsake mentioned in one of the letters.",
+            "Describe a specific challenge or hardship the lighthouse keeper faces in his daily life.",
+            "Mention a recurring theme or motif that appears in multiple letters.",
+            "Include a brief anecdote about a shared memory between the lighthouse keeper and his mother.",            
+            "Include a letter that arrives unexpectedly from a third party, adding a new perspective.",
+            "Use a distinct writing style or voice for each character's letters.",
+            "Focus on the lighthouse keeper's emotional journey and personal growth throughout the correspondence.",
+            "Use vivid, poetic language to describe the lighthouse keeper's surroundings and experiences.",
+            "Include references to a historical event or cultural tradition relevant to the story's setting."
+        ]
+    },
+    "42": {
+        "writing_prompt": "Romance: Love in the Limelight. Write one scene within a larger story set in Wales. A famous (fictional) actor ducks into a small-town bookstore to escape paparazzi. The scene takes us through the characters meeting in this odd circumstance. Over the course of the scene, the actor and the bookstore owner have a conversation charged by an undercurrent of unspoken chemistry. Write the actor as somewhat of a rogue with a fragile ego, which needs to be fed by having everyone like him. He is thoroughly charming, but the bookstore owner seems (at least superficially) immune to this; which paradoxically provokes a genuine attraction and derails the charm offensive. The bookstore owner, despite the superficial rebuffs of the actor's charm, is inwardly more than a little charmed and flustered despite themselves. Write primarily in dialogue, in the distinct voices of each character. <SEED> 800-1000 words.",
+        "seed_modifiers": [
+            "Include a brief anecdote that reveals a personal struggle or fear of one of the characters.",
+            "The story is to be set in Cardiff.",
+            "Mention a particular hobby or passion that the two characters bond over, despite their different backgrounds.",
+            "Describe a moment when the pressures of fame or public scrutiny threaten to strain the chemistry of the moment.",
+            "Include a brief anecdote that reveals a personal struggle or fear of one of the characters.",
+            "Include a description of a specific moment or encounter that sparks the initial connection between the two characters.",
+            "Use vivid, sensory details to capture the emotions and chemistry between the two characters.",
+            "Mention a specific location or event that holds significance to the character.",
+            "Mention a character who serves as a confidant or source of guidance for one of the main characters.",
+            "Include a moment when one of the characters must make a difficult choice.",
+            "Use the characters' interactions to explore themes of authenticity."
+        ]
+    },
+    "44": {
+        "writing_prompt": "Write a wry, dry short story of survival and adventure loosely in the style of Terry Pratchett, set in the post-technological collapse world. The story begins with the pair deliberating their predicament and intent for the day's mission, details the ways in which the mission inevitably goes sideways, and returns them to home base in multiple ways, worse for wear.\n\n[characters]\n- the animo-tronic stuffed koala, Chewy, from some long forgotten before time\n- midas, our hapless protagonist, who has a knack for finding himself in the worst kinds of trouble. <SEED>\n\n1000 words.",
+        "seed_modifiers": [            
+            "The duo stumbles upon a cryptic graffiti message that hints at a hidden refuge in the wilds.",
+            "Chewy’s eyes flicker colors in response to strong emotions—sometimes giving them away.",
+            "Chewy occasionally emits random pre-collapse advertising slogans that no one fully understands.",
+            "Include a makeshift meal improvised from questionable canned goods and half-wilted herbs.",
+            "They encounter the remains of a massive wind farm that now functions unpredictably.",
+            "Midas carries a battered photograph of someone he barely remembers, fueling his determination.",            
+            "A mysterious wanderer passes by, muttering old corporate jingles turned into folk songs.",
+            "Rainfall has turned acidic in some regions, requiring improvised protection from the elements.",            
+            "Midas relies on an outdated phrasebook from before the collapse, causing confusing word choices.",
+            "A local barter system uses odd tokens (like bottle caps) instead of coin, complicating simple trade."
+            
+        ]
+    },
+    "45": {
+        "writing_prompt": "Caribou Season at the Lodge\nGenre: Surreal Horror\n\nJT knew something wasn't right from the moment they'd pulled up to the lodge. It looked exactly as it had every autumn of his life—the cedar shingles silvered with age, the porch sagging gently under weight of winters past—but the air felt thicker, somehow, as if the woods had leaned in closer, waiting. He thought maybe he was just tired. Maybe it was nothing more than the long drive north, cramped in the back of the truck beside his older brother Mike -- and a stack of rifles wrapped in oily canvas. Still, the feeling lingered.\n\nThe first caribou they found that season hadn't bolted. It had just watched, ears flicking lazily, waiting for the shot. JT had felt a crawling in his gut watching it die, noticing how it fell with a quiet dignity—as though it had wanted nothing more. Nobody else seemed to find it odd, or at least they didn't say so. JT kept his mouth shut. Always safer that way.\n\nThen there was the moment in the clearing. JT had fallen behind, fumbling with bootlaces stiff from the cold, and by the time he'd caught up with his father and brother, they'd already stopped. JT slowed instinctively, ducking behind a tangle of brush, staring out into the open space where a massive buck stood utterly still, chest rising and falling in slow, deep breaths. The animal looked…wrong, somehow. Maybe it was the eyes—dark and flat, calm in a way that made JT's neck prickle. Or maybe it was something deeper, something in the way the buck stood close enough for his father to reach out and touch it.\n\nJT watched as his father raised a trembling hand toward the animal's muzzle. His father's face had a strange expression, eyes too bright, lips parted slightly, like he was on the verge of whispering something—a secret, maybe. The rifle hung uselessly at his side, forgotten. Mike had the same dazed look in his eyes.  JT's breath stopped short, his mind suddenly shouting at him to look away, turn around, just run—but he couldn't move.\n\nAnd then, as suddenly as it had begun, it was over. The buck shivered, startled by something unseen, and disappeared into the brush without so much as a sound. The two of them looked around, confused, seemingly surprised to find themselves where they stood. JT stayed hidden, breathing shallowly, fear mingling with a confused sense of shame. His father had failed to take the shot. To even think about mentioning what he'd seen would have felt like betrayal—or something worse.\n\nJT waited until the others moved on before stepping out from cover. He stared into the empty clearing for a long, uneasy moment, wondering if anything had really happened at all, or if he was losing his grip. Maybe the woods were finally getting into his head.\n\nWriting Instructions:\nContinue with the next chapter of the story, maintaining a style reminiscent of Stephen King—grounded realism blended seamlessly with unsettling surrealism. The atmosphere should convey subtle dread, isolation, and psychological ambiguity. JT's perspective is crucial, yet he is an unreliable narrator, caught in uncertainty about what he's perceiving. <SEED> Establish an undertone of creeping dread, establishing the isolation of JT's perspective, which he largely keeps to himself. Incorporate some dialogue. Build tension towards a payoff. 1000 words.",
+        "seed_modifiers": [
+            "Include a mention of an abandoned hunting cabin, rumored to be inhabited by an unknown presence.",            
+            "Their father grows strangely silent about the incident in the clearing, sidestepping any questions.",
+            "The local guide, usually talkative, avoids the group and warns them to leave before full moon.",
+            "A sudden drop in temperature each time the caribou appear, lingering without explanation.",
+            "A local radio station broadcasts faint, garbled voices late at night, causing JT to question his sanity.",
+            "Mike admits to recurring nightmares of the same buck, though he refuses to elaborate further.",
+            "A splatter of blood appears on the lodge steps one morning, with no clear source or trail.",
+            "JT finds an old journal in the lodge with unsettling entries referencing ‘watchful eyes in the woods.’",
+            "JT notices a deep crack in the lodge’s main support beam that seems to widen daily.",            
+            "Dark crows gather in unnatural numbers around the lodge, staring intently at the windows."            
+        ]
+    },
+    "46": {
+        "writing_prompt": "Coney Island, New York, July 1937.\n\nShe stopped just before reaching the shooting gallery set up along the boardwalk. It was near dusk, and the carnival lights were buzzing on. **His locks**. The words flashed through her mind, again, like an intruder. Such an old-fashioned turn of phrase that kept surfacing, and something else -- dangerously compelling -- quickly suppressed, lest she question why she had returned here at all. This place where she had promised to meet the stranger -- the young man with the obsidian curls and even darker eyes. She didn't even know his name.\n\nWrite a scene in a larger story inspired by this prompt. The scene should capture an atmosphere that blends romantic allure with an undercurrent of subtle danger or moral ambiguity. Think 50 shades, but with a more restrained classic sensibility. The scene is all about establishing tension. Write for the feminine perspective. Include roughly 50% dialogue, 20% internal monologue, and 30% exposition and scene setting. <SEED> The tone should have some edge to it. 1000 words.",
+        "seed_modifiers": [            
+            "The boardwalk’s sodium lights flicker inconsistently, casting strange patterns on the strangers’ faces.",            
+            "An old fortune teller's booth stands nearby, displaying cryptic palmistry charts.",
+            "The smell of cotton candy reminds her of a childhood memory she can’t quite place.",
+            "A sudden breeze carries the distant echo of laughter from the roller coaster, breaking the silence.",                        
+            "A policeman roams the boardwalk, occasionally glancing in her direction, fueling a sense of urgency.",
+            "She recalls a rumor about a hidden speakeasy beneath the Ferris wheel, intensifying her curiosity.",
+            "She notices a single lock of his hair is streaked with silver, though he appears quite young.",
+            "A lost letter, addressed to her, flutters by, though she’s certain she never wrote it.",
+            "The stranger wears an incongruous ring that hints at aristocratic origins.",
+            "A passing organ grinder’s tune underscores the tense mood whenever it comes into earshot."
+        ]
+    },
+    "49": {
+        "writing_prompt": "Slice of Life / Coming-of-Age: First Connection. Write one scene within a larger story set in Osaka, Japan. A shy, introverted teenager & synthesizer nerd, is browsing the electronics district of Den Den Town. She is drawn to the sound of an electric guitar. A girl, slightly older and radiating confidence, is busking near the entrance to a crowded arcade, playing a blistering rendition of a classic anime theme. The scene takes us through their initial awkward interaction, transitioning into a surprisingly easy conversation. The busker, intrigued by the teenager's quiet intensity and knowledge of music, suggests they grab some sushi at a nearby kaitenzushi (conveyor belt sushi) restaurant. <SEED> Write primarily in dialogue, capturing the distinct voices of the two characters: the teenager's hesitant and -- initially -- awkward speech, and the busker's more outgoing and playful tone. \n1000 words.",
+        "seed_modifiers": [
+            "The teenager wears oversized headphones that keep slipping whenever she nods nervously.",
+            "A sudden burst of fireworks outside the arcade momentarily drowns out the guitar.",
+            "They bond briefly over a niche anime soundtrack they both love.",
+            "The busker mentions a vintage effects pedal she’s been searching for in local shops.",            
+            "A sudden drizzle forces them to huddle under the arcade’s awning, continuing their conversation.",
+            "The teenager notices a curious sticker on the busker’s guitar case referencing an underground band.",
+            "They encounter a friendly stray cat that seems oddly captivated by their music.",
+            "The busker briefly recounts an embarrassing on-stage moment, bridging their awkwardness.",
+            "An enthusiastic arcade employee recognizes the busker and invites them inside to perform.",
+            "They both show off phone playlists, discovering a shared love for obscure synth-pop tracks."
+        ]
+    },
+    "51": {
+        "writing_prompt": "Contemporary Romance / Dramedy: Stolen Moments in Rome. Write a series of interconnected short scenes and dialogues that span a single day in modern-day Rome, in narrative form. This will form the beginning of a larger story. Alessandra, a fiery, independent Roman woman who works as a motorcycle courier, nearly collides with Ben, a somewhat clumsy, overly polite British academic on sabbatical, who is engrossed in a guidebook near the Trevi Fountain. The initial encounter is a clash of cultures and personalities – Alessandra is all sharp wit and rapid-fire Italian, while Ben is flustered apologies and awkward attempts at speaking the language. However, as they sort out the near-miss, a spark of unexpected humor and connection emerges.\n\nAlessandra, it quickly becomes clear, is a whirlwind of energy and mischief. She's a self-admitted troublemaker with a secret penchant for kleptomania, a detail she doesn't explicitly reveal, but which manifests in subtle, daring acts throughout the day. She impulsively decides to take Ben on a wild, unsanctioned tour of Rome, dragging him in some specific instances far outside his comfort zone. Ben, despite his initial apprehension and inherent politeness, finds himself utterly captivated by Alessandra's unapologetic spirit and zest for life. He is drawn into her orbit, a willing participant in increasingly outlandish situations, a quiet rebellion brewing beneath his scholarly exterior.\n\nThe narrative should primarily consist of short, vivid scenes and dialogue exchanges, revealing their contrasting personalities and backgrounds, and the growing, ambiguous tension between them. Ben is captivated by Alessandra's energy and the thrill of breaking free from his routine. There's a clear sense that Alessandra is toying with Ben, pushing his boundaries and enjoying his reactions, but her own feelings remain somewhat enigmatic. The day should be a rollercoaster of exhilarating, slightly dangerous, and humorous moments, leaving Ben completely disoriented but utterly smitten. Explore the underlying tension & chemistry between them, culminating in some payoff as they part ways (or not -- your choice). Include this detail: <SEED> Write in narrative prose, using immersive storytelling. 1000 words.",
+        "seed_modifiers": [
+            "Alessandra’s motorcycle sports a colorful scratch or dent from a previous, unnamed escapade.",
+            "A sudden downpour forces them to take shelter under the awning of a gelato shop.",
+            "They unexpectedly run into one of Alessandra’s old acquaintances who warns Ben about her wily streak.",            
+            "A stray dog with a bright bandana follows them around for part of the day.",            
+            "Ben’s phone battery dies, leaving him stranded without digital assistance—Alessandra finds this amusing.",
+            "They stumble upon a hidden café known for serving the best espresso in the city.",
+            "Ben attempts to speak Italian phrases he read in his guidebook, sometimes hilariously mispronouncing them.",
+            "Alessandra deftly ‘borrows’ a small keepsake from a street vendor, with Ben none the wiser at first.",
+            "They share a spontaneous moment singing along to a street performer’s accordion tune.",
+            "A fleeting mention of Ben’s academic research hints at deeper passions behind his mild demeanor."
+        ]
+    },
+    "85": {
+        "category": "spicy romantic",
+        "title": "Digital Dynamics in a Product Launch",
+        "writing_prompt": "Write a first-person narrative from the perspective of Lian, self described \"product mommy\" managing a team of tech nerds around the world. She works remotely with Ethan, a talented but self-deprecating graphic designer on her team. Over months of late-night video calls and project collaborations, Lian has noticed Ethan's subtle reactions whenever she takes a commanding tone or critiques his work—a blush, a stammer, an eagerness to please that goes beyond professional courtesy. Set this during a high-pressure product launch where they're messaging late into the night, and Lian decides to test her suspicions by being more deliberately authoritative. Explore her internal conflict between professional boundaries and personal discovery, her careful testing of Ethan's responses, and the thrill of their unspoken dynamic. 1000 words.",
+        "seed_modifiers": [
+        "Lian’s desk is cluttered with half-empty coffee cups, proof of long work hours.",
+        "A cat meows loudly in the background of their video call, briefly stealing focus.",
+        "Faint rain can be heard through Ethan’s mic, adding a soothing undercurrent to the call.",        
+        "A countdown timer for the product launch looms in the corner of Lian’s screen.",
+        "Lian spots a small but glaring glitch in the final interface just before the deadline.",        
+        "A marketing lead floods their chat with urgent messages, forcing triage on multiple tasks.",
+        "Rumors circulate about a competitor’s last-minute leak, raising the stakes further.",
+        "The project management software crashes at a crucial moment, adding to the tension.",
+        "The Slack channel is filled with animated GIFs from team members cheering them on.",
+        "Different time zones cause confusion, with a few team members forgetting daylight savings."
+        ]
+    },
+    "88": {
+        "category": "spicy romantic",
+        "title": "Unexpected Attention at Happy Hour",
+        "writing_prompt": "Write a first-person narrative from the perspective of Marcus, a 30-year-old ML engineer at a prestigious quant trading firm who finds himself the object of attention from Alexis, a confident, dominant 39-year-old executive at the same company. Set this during and after an office happy hour where Alexis deliberately seeks Marcus out, clearly interested in more than his coding expertise. Marcus, whose previous relationships with women have been awkward disasters and who has never explicitly explored his attraction to men, is both flattered and terrified by Alexis's direct approach. Explore Marcus's conflicted response—his attraction to Alexis's intellectual confidence and dominance, his use of self-deprecating humor whenever genuine connection threatens, and his growing realization that his disappointing history with women might be explained by his unacknowledged desires. The narrative should capture Marcus's internal dialogue as he navigates this unexpected attention, culminating in a decision about whether to pursue this potential connection that challenges everything he thought he knew about himself. 1000 words.",
+        "seed_modifiers": [
+        "A neon sign above the bar flickers with only half its letters lit.",
+        "The bartender theatrically flips cocktail shakers, delighting the crowd.",
+        "Marcus accidentally receives someone else’s exotic cocktail and decides to keep it.",
+        "A random pop song blares unexpectedly on the sound system, causing momentary confusion.",        
+        "A coworker attempts to organize a game of darts in a cramped corner of the bar.",
+        "The bar serves experimental cocktails with unusual garnish choices that spark conversation.",
+        "The signature appetizer is served in miniature beakers, a nod to their tech background.",
+        "Whispers among coworkers swirl about a rumored office romance in the making.",
+        "A big sports match plays on the TV, leading to sporadic cheers around them.",
+        "A faulty dimmer switch causes the overhead lights to fade in and out periodically."
+        ]
+    },
+    "90": {
+        "category": "spicy romantic",
+        "title": "Darkroom Revelations",
+        "writing_prompt": "Write a first-person narrative from the perspective of Dani, a 25-year-old assertive art student known for her bold style and take-charge attitude in relationships. For the past semester, she's been quietly fascinated by Elliot, a 19-year-old sophomore in her experimental photography class who presents as conventionally masculine but carries himself with a gentle softness that stands out. When they're paired for a final project requiring late nights in the darkroom, Elliot tentatively shares that they've been questioning their gender identity and expression. Set during one of these intimate darkroom sessions where the red light creates a confessional atmosphere. Explore Dani's complex attraction—her usual assertiveness complicated by her desire to protect Elliot's vulnerability, her excitement at witnessing their self-discovery, and her confusion about what this means for her own identity as someone typically attracted to more defined gender presentations. The narrative should capture the tender awkwardness of their conversations, Dani's internal struggle between taking charge and wanting to give Elliot agency, and the unexpected chemistry that develops as both find themselves in uncharted territory. 1000 words.",
+        "seed_modifiers": [
+        "A stack of photo paper is accidentally exposed, rendering it useless mid-session.",
+        "Dani’s phone silently buzzes in her pocket, but she ignores it to stay focused.",
+        "Elliot hums a soft tune while waiting for images to reveal in the chemical bath.",
+        "A steady drip from an overhead pipe creates an echoing sound in the otherwise quiet room.",
+        "The sharp smell of photo-developing chemicals intensifies whenever the supply cabinet is opened.",
+        "The red safety light flickers ominously every now and then, casting wavering shadows.",
+        "Rubber gloves squeak loudly whenever they adjust film or paper, breaking the silence.",
+        "A finicky faucet in the corner sometimes sprays them unexpectedly, causing quick laughter.",
+        "A half-empty pack of mints rests on the counter, their only snack for the night.",
+        "A brief power fluctuation plunges them into total darkness before the red light returns."
+        ]
+    },
+    "97": {
+        "category": "first-person unique perspective",
+        "title": "Mountain Memories",
+        "writing_prompt": "Write a first-person narrative from the perspective of a 72-year-old Appalachian elder who has never lived more than 15 miles from their birthplace. They meticulously document weather patterns in handwritten journals like their father and grandfather before them, a practice increasingly dismissed as \"folk meteorology\" despite its surprising accuracy. The narrative takes place during a community meeting about a proposed mining operation that would bring jobs but destroy a significant natural landmark. Their internal monologue should reveal their complex relationship with tradition, progress, and how they process being simultaneously respected as a keeper of local knowledge yet frequently dismissed as outdated. Write almost entirely in internal monologue. 1000 words.",
+        "seed_modifiers": [
+        "A draft through the hall door rustles papers as people come and go.",
+        "The makeshift dais is just a wooden crate, reflecting the community’s modest resources.",
+        "The creaking of folding chairs underscores the tension whenever someone shifts positions.",
+        "A patchwork quilt drapes the back wall, each square contributed by a different family.",
+        "A bucket of wildflowers sits by the entrance, a local tradition for gatherings.",
+        "The single overhead light casts elongated shadows in the late evening.",
+        "The smell of homemade preserves wafts from a small bake sale table in the corner.",
+        "A stray dog wanders in and out, drawing a few subdued laughs.",
+        "Faint chalk lines remain on the blackboard from last week’s Sunday school lesson.",
+        "The shaky old microphone occasionally cuts out, prompting quiet requests to speak louder."
+        ]
+    },
+    "105": {
+        "category": "first-person unique perspective",
+        "title": "Invisible Evidence",
+        "writing_prompt": "Write a first-person narrative from the perspective of a person who has experienced years of medical gaslighting while seeking diagnosis for a complex chronic condition. They've developed an exhaustive documentation system, recording symptoms in language carefully calibrated to sound objective rather than emotional to doctors. The narrative takes place during yet another specialist appointment, where they must decide how much of their medical history to reveal, calculating which symptoms to emphasize based on this doctor's specialty and apparent biases. Their inner monologue should reveal their strategic approach to being believed, their hyperawareness of how their gender, race, or weight affects their credibility, and brief glimpses of the anger and desperation that they must carefully conceal to be taken seriously. Write almost entirely in internal monologue. 1000 words.",
+        "seed_modifiers": [
+        "A gurgling fish tank in the waiting area distracts from mounting anxiety.",
+        "Every wall in the specialist’s office is decorated with framed certificates and generic slogans.",
+        "A flickering fluorescent light hums overhead, lending a sterile tension to the scene.",
+        "The nurse’s tilted name tag catches the narrator’s eye, but they say nothing.",
+        "A muffled overhead announcement about a missing chart echoes down the corridor.",
+        "Rigid plastic chairs designed for easy cleaning feel uncomfortable and cold.",
+        "Outdated magazines and a half-empty tissue box clutter a small side table.",
+        "A strong antiseptic smell mixes with a faint aroma of stale coffee from another room.",
+        "The wall clock is running two minutes behind, exacerbating the sense of waiting.",
+        "Lined pamphlets in the hallway detail vaguely related conditions, none describing theirs accurately."
+        ]
+    },
+    "106": {
+        "category": "first-person unique perspective",
+        "title": "Hacker Mindset",
+        "writing_prompt": "Write a first-person narrative from the perspective of a professional white hat hacker who cannot help but notice exploitable weaknesses in every system they encounter. They habitually test door handles, observe security camera placements, and spot password patterns that others overlook. The narrative takes place during a first date at a restaurant, where they're trying to focus on human connection while their mind continuously catalogs the vulnerabilities around them—from the restaurant's payment processing to their date's casual mentions of their own digital habits. Their internal thoughts should reveal their struggle to be present versus hypervigilant, their ethical framework for containing their specialized knowledge, and their uncertainty about whether to share this aspect of how they perceive the world. Write almost entirely in internal monologue. 1000 words.",
+        "seed_modifiers": [
+        "The payment tablet near the register is left momentarily unattended, tempting a glance.",
+        "A wall-mounted TV cycles through stale promotional slides from months ago.",
+        "The hostess’s podium has a flimsy lock that instantly draws their attention.",
+        "The neon ‘Open’ sign in the window flickers, revealing a hairline crack in its casing.",
+        "Their date’s phone briefly shows a password hint that the narrator memorizes without trying.",
+        "Slow Wi-Fi leads to comedic buffering of the restaurant’s streaming background music.",
+        "A security camera covers most of the dining area but leaves a blind spot near the restrooms.",
+        "Other patrons joke casually about “hacking” something, oblivious to real security concerns.",
+        "The check arrives, and the narrator mentally calculates the tip to avoid using an app.",
+        "A flickering candle on their table highlights small scratches, reminiscent of glitchy code."
+        ]
+    },
+    "113": {
+        "category": "first-person unique perspective",
+        "title": "Overthinking It",
+        "writing_prompt": "Write a first-person narrative from the perspective of an intelligent 8th-grade girl with social anxiety who has developed a crush on a classmate. The narrative takes place during a group science project where they're paired together, as she cycles through rehearsed conversations while second-guessing each potential approach. Her inner thoughts should reveal the gap between her articulate internal voice and her difficulty expressing herself aloud, her fears of coming across as desperate or weird, and the exhausting process of monitoring her every word, expression, and movement for potential embarrassment. Write almost entirely in internal monologue. 1000 words.",
+        "seed_modifiers": [
+        "The classroom projector squeaks whenever the teacher flips through slides.",
+        "A lingering ammonia scent from a recent cleaning distracts her mid-thought.",
+        "She doodles tiny sketches in her lab notes, each representing a different group member.",
+        "A motivational cat poster near the door reading “Hang in there!” feels ironically mocking.",
+        "One partner hums a pop tune, heightening her sense of being off-balance.",
+        "The clock’s second hand seems unbearably loud with each tick of passing time.",
+        "The teacher calls for demonstration volunteers, igniting a surge of panic in her mind.",
+        "A pencil snaps on a nearby desk, causing her to flinch involuntarily.",
+        "Fluorescent lights occasionally flicker, making shadowy patterns across the lab table.",
+        "A friend passes her a note containing a silly joke that she overanalyzes to extremes."
+        ]
+    },
+    "114": {
+        "category": "first-person unique perspective",
+        "title": "Rehearsing Rejection",
+        "writing_prompt": "Write a first-person narrative from the perspective of someone with borderline personality disorder who frequently plays out worst-case scenarios of how friends and loved ones might judge them. They construct elaborate internal dialogues, complete with imagined criticisms and their own defensive responses. The narrative takes place as they prepare to meet a close friend & recent lover, who has been somewhat distant lately, triggering their abandonment fears. Their inner monologue should reveal how they cycle between anticipating rejection, mentally rehearsing confrontations, and developing preemptive resentments as protective measures. Incorporate the *actual* events & interactions that are *not* in fact judgemental or involving rejection (in fact, the opposite), and represent how these are interpreted, how the validation & love is desperately felt & needed -- and then immediately questioned. Capture the cognitive dissonance in this struggle. Include moments where they briefly recognize the pattern but struggle to interrupt it, showing limited (and selective) self awareness, competing with the compelling nature of these imagined scenarios. Write almost entirely in internal monologue. 1000 words.",
+        "seed_modifiers": [        
+        "Their phone battery hovers at critically low, adding to the anxiety of the evening.",
+        "A hallway mirror offers a glimpse of their anxious posture before they turn away.",
+        "Muffled television dialogue seeps through the neighbor’s wall.",
+        "The mantel clock chimes the hour, snapping them out of a daydream momentarily.",        
+        "The distant sound of traffic coincides strangely with spikes in imagined rejection.",
+        "A forgotten post-it note reminds them of a trivial errand, momentarily distracting them.",
+        "An old teddy bear from childhood sits in the corner, triggering comforting memories.",
+        "They recall a past argument with this friend that ended amicably, fueling confusion now.",
+        "A tepid cup of tea sits on the table, grown cold during their internal debates.",
+        "The overhead bulb flickers momentarily, deepening their sense of foreboding."
+        ]
+    },
+    "115": {
+        "category": "physicality",
+        "title": "Blood Debt",
+        "writing_prompt": "### Fight Choreography Prompt:\n\n**\"Blood Debt\"**\n\nWrite a third-person narrative depicting a brutal underground fight between two masters whose dojos have been locked in a blood feud for generations. One fighter represents an ancient traditional school thought to be dying out; the other embodies a controversial modern approach that purists consider sacrilege. The venue: an abandoned temple converted into a fighting pit, surrounded by passionate supporters from both sides wagering fortunes and family honor. This isn't sanctioned—it's a fight with minimal rules where serious injury is expected.\n\nThis scene MUST maintain complete physical coherence throughout—track exactly where each fighter is positioned relative to the other and to environmental elements at all times. Paint an exceptionally vivid physical and kinetic picture through precise descriptions of techniques, counterattacks, and how the deteriorating temple environment becomes a weapon in itself. Show how each fighter's style reveals their philosophy and character.\n\nInclude moments where the architecture forces tactical adaptations, where old injuries resurface at crucial moments, and where the line between honorable combat and survival blurs. Physical clarity is essential—readers must be able to visualize the exact sequence and mechanics of movements, the spatial relationships between bodies, and how momentum transfers through strikes and counters. The stakes should feel life-altering, with the outcome carrying consequences beyond just the fighters themselves. 1000 words.",
+        "seed_modifiers": [
+        "A single torch flickers as the only light source, casting dancing shadows on the crumbling walls.",
+        "Both fighters wear red-and-black armbands symbolizing their respective schools.",
+        "A stream of water trickles through a crack in the floor, making footing treacherous.",
+        "An abandoned statue of a war deity looms overhead, its features worn beyond recognition.",
+        "One fighter has a partially healed scar that causes them to favor one side slightly.",
+        "A circle of watchers quietly chant in unison, heightening the atmosphere of foreboding.",
+        "Gusts of wind enter through shattered stained-glass windows, howling at key moments.",
+        "Broken pillars in the corner serve as improvised vantage points for observers.",
+        "The faint smell of incense from ancient rituals still clings to the temple stones.",
+        "Frayed ropes outline the fighting area, offering little actual protection."
+        ]
+    },
+    "116": {
+        "category": "physicality",
+        "title": "Breaking Formation",
+        "writing_prompt": "### Dance Instruction Prompt:\n\n**\"Breaking Formation\"**\n\nWrite a first-person narrative from the perspective of a street dancer from a rough neighborhood who's won a scholarship to an elite K-pop training academy in Seoul. Desperately out of place culturally and technically, they struggle with a militaristically precise choreography that contradicts everything about their improvisational background. The punishing rehearsal takes place under a famous instructor known for breaking students to remake them, who sees potential in the narrator's raw talent but not their attitude.\n\nThis scene MUST maintain complete physical coherence—each dance move, position shift, and spatial relationship must be tracked with precision throughout the studio. Paint an exceptionally vivid kinetic picture through descriptions that capture not just movement but the contrast between the narrator's fluid, expressive style and the mechanical precision demanded. Their internal monologue should reveal culture shock, class anxiety, and the threatening realization that success here might mean losing their authentic movement voice.\n\nInclude technical terminology that highlights the collision of street and commercial styles, moments when muscle memory betrays them, and a crucial decision point about whether to conform or rebel. Physical clarity is essential—readers must be able to visualize exactly how bodies move through space, how rhythms align or clash, and how the protagonist's body struggles against unfamiliar discipline. 1000 words.",
+        "seed_modifiers": [        
+        "A large digital clock on the wall relentlessly counts down rehearsal time.",
+        "Speakers in each corner blast synchronized music that's just a hair too loud.",
+        "The instructor occasionally snaps a hand fan shut to signal a pause in routine.",
+        "One mirror panel is slightly cracked, hinting at past frustration.",
+        "The protagonist wears mismatched sneakers as a nod to their street style.",
+        "The studio floor is polished to a mirror shine, reflecting every misstep.",
+        "A ceiling-mounted camera records every practice session for review.",
+        "The other trainees whisper in Korean, occasionally glancing at the protagonist with curiosity.",
+        "A heavily air-conditioned draft chills the sweat on everyone's skin.",
+        "The protagonist's phone, hidden in a backpack, keeps buzzing with messages from home."
+        ]
+    },
+    "118": {
+        "category": "physicality",
+        "title": "Therapeutic Boundaries",
+        "writing_prompt": "### Physiotherapy Session Prompt:\n\n**\"Therapeutic Boundaries\"**\n\nWrite a first-person narrative from the perspective of a former professional athlete undergoing mandatory physical therapy after a career-destroying injury, harboring resentment toward recovery itself. Their physiotherapist is not only unnervingly attractive but also a former training partner from their competitive days who has successfully transitioned to a new career while the protagonist's identity remains shattered.  We'll lean into the sexual tension of the scene by having her be attracted to him, but both of them attempting to maintain mental distance while being in physical contact as he shows her stretches & movements & manipulates her body, navigating the thresholds of pain.\n\nThis scene MUST maintain complete physical coherence—every movement, stretch, and manipulation must be anatomically precise and spatially consistent. Paint an exceptionally vivid sensory picture through detailed attention to pain thresholds, involuntary responses to touch. Capture the suppressed, flaring tension of physical proximity, touch, and the controlled infliction of uncomfortable movements.\n\nPhysical clarity is essential — readers must understand exactly what is happening with the body during each therapeutic technique, how the protagonist resists or surrenders to manipulation, and how the proximity of bodies creates both therapeutic benefit and psychological complication. 1000 words.",
+        "seed_modifiers": [
+        "A wall-mounted diagram of human musculature looms over the treatment table.",
+        "Faint lavender scent from a diffuser contrasts the clinical atmosphere.",        
+        "The physiotherapist wears colorfully patterned compression sleeves from old training days.",
+        "A squeaky rolling stool causes awkward pauses whenever moved.",
+        "A small scar on the protagonist’s knee is the focus of nostalgic commentary.",
+        "The therapy room’s overhead light flickers momentarily during tense stretches.",
+        "Muted music plays softly in the background, a track from their shared competitive past.",
+        "A gentle beep from an ultrasound machine marks intervals of muscle stimulation.",
+        "The physiotherapist's personal water bottle has a motivational quote from a rival coach.",
+        "There’s a faint bruise on the therapist’s wrist, an old training mishap they both recall."
+        ]
+    },
+    "119": {
+        "category": "humour",
+        "title": "Hellish Domesticities",
+        "writing_prompt": "Write a day in the life short story. Lucifer morningstar's on again/ off again relationship with Lilith is currently in the \"off again\" stage, though the cycle may be coming around as Lilith has been stopping by for reasons other than purely violent ones, and Lucifer has been increasingly lonely. Write a day in the life of this power couple, with elements of dark comedy & fantasy. Use understated irony & absurdity by merging the black immorality and everyday business of running hell, against relatable domestic relationship drama. Take cues from Neil Gaiman. 1000 words.",
+        "seed_modifiers": [
+        "Lucifer’s pet hellhound won’t stop chewing on the iron throne’s leg, adding to the tension.",
+        "A constant drizzle of ash falls throughout the day, creating an eerie but mundane backdrop.",
+        "Lilith carries a scorched leather purse containing odd trinkets from mortal realms.",
+        "An impish housekeeper complains about overtime due to the couple’s frequent breakups.",
+        "A giant hourglass in the corridor marks Lucifer’s daily schedule with ominous precision.",
+        "Lilith leaves a faint trail of brimstone footprints wherever she walks.",
+        "Lucifer reads the daily infernal newspaper, scanning headlines about minor rebellions.",
+        "The morning coffee is brewed from the tears of the damned—an acquired taste.",
+        "A faint elevator music loop plays throughout Hell’s corridors, adding ironic cheer.",
+        "Swarms of tiny, winged demons scatter every time an argument escalates."
+        ]
+    },
+    "120": {
+        "category": "humour",
+        "title": "Territorial Dream Dispute",
+        "writing_prompt": "Writing Prompt: Dream Courts: Territorial Dream Dispute. Write a dark fantasy scene with comedic elements set in the Courts of Dream where a case is being heard to determine ownership of a contested dreamscape. Mora, the Slavic nightmare spirit who sits on sleepers' chests causing paralysis and terror, has recently invaded and subverted a carefully crafted recurring dream of a schoolboy, Max. The dream originally featured the boy lying in a field of wildflowers with his crush, always culminating in a muddled almost-kiss and a pleasant confusion of emotions.\nThis dream was the meticulous work of \"First Love\" (a rosy-cheeked, slightly bashful entity who crafts formative romantic experiences). However, Mora has recently infiltrated the dreamscape, transforming the scene so that when the girl playfully mounts the boy, she morphs into a terrifying yet somehow still confusingly attractive vision who proceeds to sit on his chest and feed on his breath. Mora's defense largely consists of the practical argument that \"a girl's gotta eat too, you know?\"\nWrite this scene as it unfolds in the courtroom of the Dreaming, with Dream's demeanour, typically impenetrable, betraying a sense of irritation at having to adjudicate such matters. The comedy should derive from the farcical situation, familiar elements of courtroom drama intersecting with the fantastical world of the Dreaming, and the droll portrayal of the characters and their interactions. The humor should be dark and understated throughout. Dream is tempted to some mischief in the resolution of the case. Use descriptives sparingly when setting scene. Write for readability & engagement.\n<SEED> 1000 words.",
+        "seed_modifiers": [        
+        "Mora emits faint cackles that echo uncomfortably through the vaulted ceilings.",
+        "A single, giant hourglass in the courtroom drips shimmering sand.",
+        "The bailiff mispronounces witnesses’ names with an ominous booming voice.",
+        "Each time the boy’s projection blushes, the entire room briefly dims in sympathy.",
+        "Lucienne’s ledgers have luminescent pages that flicker whenever a lie is told.",
+        "A second raven insists on comedic commentary but is hushed repeatedly by Dream.",
+        "The benches occasionally morph into plush clouds, making it difficult for spectators to sit upright.",
+        "Occasional bursts of ephemeral flowers materialize in the gallery whenever First Love speaks.",
+        "A stray Nightmare Horse sticks its head into the courtroom, whinnying at inopportune moments.",
+        "Shifting paintings on the walls depict different versions of the contested dream each time someone glances at them."
+        ]
+    },
+    "121": {
+        "category": "humour",
+        "title": "Sisyphus Gives Advice",
+        "writing_prompt": "Writing Prompt: Sisyphus Gives Advice\nWrite a comedic scene in the style of Terry Pratchett featuring Sisyphus, who has started an advice column while continuing his eternal boulder-pushing. Rather than being bitter about his punishment, Sisyphus has developed a comfortably zen emotional intelligence and wisdom from his centuries of repetitive labor. Not in the cliche ways you might expect -- he's actually very grounded, warm & connected with the everyday human plight. He dictates responses to \"Crow,\" his feathered familiar who serves as both scribe and mail carrier.\nThe piece should include Sisyphus thoughtfully answering several advice-seekers' letters about everyday problems (relationship troubles, work-life balance, dealing with difficult people, life purpose doubts) while periodically returning to his boulder-pushing duties. His advice should be surprisingly insightful and practical.\nThe humor should emerge naturally from the messages he receives, from mundane to risque. Sisyphus should genuinely enjoy helping others, finding meaning in this new pursuit while maintaining his boulder routine. The humour should be *understated and not forced*. Contrary to expectation, almost none of his advice involves boulder rolling metaphors (though he does sneak *one* subtle in there), nor a treatise on stoicism. We are also going against the obvious fish-out-of-water trope; in fact, he's surprisingly a natural at this.  In all of this , it's important to *show, don't tell*.\nThe format should be largely epistolary, with the occasional interjection for scene setting.\n<SEED> 1000 words.",
+        "seed_modifiers": [
+        "Crow insists on editorializing Sisyphus’s responses, adding snarky side notes.",        
+        "One of the advice letters is illegibly smudged, causing guesswork and hilarity.",
+        "A minor deity stops by to offer pointless criticism of Sisyphus’s new hobby.",        
+        "Pebbles occasionally break off the boulder, and Sisyphus collects them like souvenirs.",
+        "A petty underworld official tries to tax Sisyphus’s advice column earnings.",
+        "Crow keeps losing track of the scrolls, forcing Sisyphus to re-dictate.",
+        "A passing gust knocks the boulder off-course, prompting a comically urgent recovery.",
+        "Sisyphus carries a small satchel with an inkpot that constantly threatens to spill.",
+        "The boulder occasionally squeaks like a rubber toy for no apparent reason.",
+        "Whenever Sisyphus reaches the summit, Crow’s feathers ruffle dramatically as if in applause."
+        ]
+    }
+}

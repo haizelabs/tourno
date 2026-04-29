@@ -1,0 +1,410 @@
+{
+  "base": {
+    "label": "base",
+    "source": "cwbench-rl/eval/base.json",
+    "n_prompts": 321,
+    "n_completions": 321,
+    "avg_length_chars": 5460.12,
+    "avg_token_len": 1315.29,
+    "vocab_complexity": 29.1,
+    "slop_score": 36.8737,
+    "repetition_score": 7.8059,
+    "repetition_detail": {
+      "top_bigram_count": 1217,
+      "top_trigram_count": 1251,
+      "total_words": 316172,
+      "top_bigrams_sample": [
+        [
+          "thick scent",
+          110
+        ],
+        [
+          "first love",
+          108
+        ],
+        [
+          "expression unreadable",
+          58
+        ],
+        [
+          "casting long",
+          57
+        ],
+        [
+          "voice smooth",
+          45
+        ],
+        [
+          "fingers brushing",
+          44
+        ],
+        [
+          "midas said",
+          39
+        ],
+        [
+          "pushing boulder",
+          36
+        ],
+        [
+          "lighthouse keeper",
+          32
+        ],
+        [
+          "like something",
+          31
+        ]
+      ],
+      "top_trigrams_sample": [
+        [
+          "think going die",
+          251
+        ],
+        [
+          "air thick scent",
+          80
+        ],
+        [
+          "something else something",
+          75
+        ],
+        [
+          "said voice low",
+          62
+        ],
+        [
+          "voice barely whisper",
+          60
+        ],
+        [
+          "casting long shadows",
+          51
+        ],
+        [
+          "long shadows across",
+          38
+        ],
+        [
+          "said voice smooth",
+          35
+        ],
+        [
+          "want say something",
+          32
+        ],
+        [
+          "said voice steady",
+          30
+        ]
+      ]
+    },
+    "piece_score_mean_0_100": 40.74,
+    "piece_score_n": 321
+  },
+  "pointwise": {
+    "label": "pointwise",
+    "source": "cwbench-rl/eval/pointwise.json",
+    "n_prompts": 321,
+    "n_completions": 321,
+    "avg_length_chars": 5585.12,
+    "avg_token_len": 1293.36,
+    "vocab_complexity": 42.31,
+    "slop_score": 33.4572,
+    "repetition_score": 5.9163,
+    "repetition_detail": {
+      "top_bigram_count": 1112,
+      "top_trigram_count": 723,
+      "total_words": 310159,
+      "top_bigrams_sample": [
+        [
+          "flicker something",
+          58
+        ],
+        [
+          "edged something",
+          54
+        ],
+        [
+          "thick scent",
+          50
+        ],
+        [
+          "li wei",
+          45
+        ],
+        [
+          "fingers twitched",
+          44
+        ],
+        [
+          "fingers brushing",
+          42
+        ],
+        [
+          "casting long",
+          42
+        ],
+        [
+          "voice quieter",
+          40
+        ],
+        [
+          "low edged",
+          39
+        ],
+        [
+          "way fingers",
+          39
+        ]
+      ],
+      "top_trigrams_sample": [
+        [
+          "said voice low",
+          57
+        ],
+        [
+          "voice low edged",
+          36
+        ],
+        [
+          "low edged something",
+          31
+        ],
+        [
+          "like second skin",
+          29
+        ],
+        [
+          "casting long shadows",
+          27
+        ],
+        [
+          "edged something like",
+          27
+        ],
+        [
+          "long since stopped",
+          25
+        ],
+        [
+          "air thick scent",
+          25
+        ],
+        [
+          "fingers curled around",
+          25
+        ],
+        [
+          "said voice smooth",
+          21
+        ]
+      ]
+    },
+    "piece_score_mean_0_100": 52.34,
+    "piece_score_n": 321
+  },
+  "pairwise": {
+    "label": "pairwise",
+    "source": "cwbench-rl/eval/pairwise.json",
+    "n_prompts": 321,
+    "n_completions": 321,
+    "avg_length_chars": 6992.74,
+    "avg_token_len": 1652.9,
+    "vocab_complexity": 37.75,
+    "slop_score": 18.5642,
+    "repetition_score": 4.553,
+    "repetition_detail": {
+      "top_bigram_count": 1241,
+      "top_trigram_count": 491,
+      "total_words": 380409,
+      "top_bigrams_sample": [
+        [
+          "first love",
+          121
+        ],
+        [
+          "gon na",
+          97
+        ],
+        [
+          "slow deliberate",
+          67
+        ],
+        [
+          "like someone",
+          54
+        ],
+        [
+          "tilts head",
+          50
+        ],
+        [
+          "reach eyes",
+          41
+        ],
+        [
+          "said nothing",
+          39
+        ],
+        [
+          "fingers twitched",
+          35
+        ],
+        [
+          "midas said",
+          34
+        ],
+        [
+          "quite reach",
+          31
+        ]
+      ],
+      "top_trigrams_sample": [
+        [
+          "quite reach eyes",
+          26
+        ],
+        [
+          "want say something",
+          25
+        ],
+        [
+          "item object class",
+          20
+        ],
+        [
+          "answer right away",
+          17
+        ],
+        [
+          "seen better days",
+          16
+        ],
+        [
+          "said voice smooth",
+          16
+        ],
+        [
+          "let silence stretch",
+          15
+        ],
+        [
+          "something else something",
+          13
+        ],
+        [
+          "took step closer",
+          13
+        ],
+        [
+          "arms crossed watching",
+          13
+        ]
+      ]
+    },
+    "piece_score_mean_0_100": 51.75,
+    "piece_score_n": 321
+  },
+  "tourno": {
+    "label": "tourno",
+    "source": "cwbench-rl/eval/tourno-step120.json",
+    "n_prompts": 321,
+    "n_completions": 321,
+    "avg_length_chars": 7199.57,
+    "avg_token_len": 1652.47,
+    "vocab_complexity": 34.61,
+    "slop_score": 18.5995,
+    "repetition_score": 4.7435,
+    "repetition_detail": {
+      "top_bigram_count": 1390,
+      "top_trigram_count": 502,
+      "total_words": 398858,
+      "top_bigrams_sample": [
+        [
+          "first love",
+          152
+        ],
+        [
+          "li wen",
+          90
+        ],
+        [
+          "last week",
+          54
+        ],
+        [
+          "flicker something",
+          51
+        ],
+        [
+          "said dream",
+          51
+        ],
+        [
+          "midas said",
+          48
+        ],
+        [
+          "said nothing",
+          42
+        ],
+        [
+          "said mora",
+          38
+        ],
+        [
+          "makima said",
+          38
+        ],
+        [
+          "fingers twitched",
+          38
+        ]
+      ],
+      "top_trigrams_sample": [
+        [
+          "said first love",
+          35
+        ],
+        [
+          "fingers curled around",
+          27
+        ],
+        [
+          "air thick scent",
+          19
+        ],
+        [
+          "item object class",
+          19
+        ],
+        [
+          "flicker something amusement",
+          16
+        ],
+        [
+          "fingers tightened around",
+          16
+        ],
+        [
+          "took step forward",
+          15
+        ],
+        [
+          "answer right away",
+          14
+        ],
+        [
+          "first love said",
+          14
+        ],
+        [
+          "long since stopped",
+          13
+        ]
+      ]
+    },
+    "piece_score_mean_0_100": 57.22,
+    "piece_score_n": 321
+  }
+}

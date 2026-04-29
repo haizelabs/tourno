@@ -371,6 +371,21 @@ async def training_loop(
             name=config.run_name,
             config=config.model_dump(),
         )
+        # Worker/judge code calls wandb.log() without step= (auto-increment), so passing
+        # explicit step=N from this loop conflicts with the auto counter and causes
+        # trainer-emitted metrics to be silently dropped. Use the "step" field in the
+        # logged dict as the chart x-axis instead.
+        wandb.define_metric("step")
+        for ns in ("reward", "optim", "kl", "time", "by_group", "progress"):
+            wandb.define_metric(f"{ns}/*", step_metric="step")
+        wandb.define_metric("entropy", step_metric="step")
+        wandb.define_metric("judge_calls", step_metric="step")
+        wandb.define_metric("n_datums", step_metric="step")
+        wandb.define_metric("ac_tokens_per_turn", step_metric="step")
+        wandb.define_metric("ob_tokens_per_turn", step_metric="step")
+        wandb.define_metric("turns_per_episode", step_metric="step")
+        wandb.define_metric("total_ac_tokens", step_metric="step")
+        wandb.define_metric("total_ob_tokens", step_metric="step")
 
     ### Write base model metadata ###
     os.makedirs(config.log_path, exist_ok=True)
@@ -495,7 +510,7 @@ async def training_loop(
         metrics["time/total"] = time.time() - t_start
         log_metrics(metrics, step=step)
         if wandb_run is not None:
-            wandb.log(metrics, step=step)
+            wandb.log(metrics)  # "step" field embedded in metrics; charted via define_metric
 
         step += 1
 

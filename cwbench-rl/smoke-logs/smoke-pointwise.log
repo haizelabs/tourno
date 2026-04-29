@@ -1,0 +1,272 @@
+[38;5;182m[13:36:59][0m [32m[ INFO][0m [38;5;182m[cwbench_judges][0m Renderer: qwen3_disable_thinking, model: Qwen/Qwen3-8B
+[38;5;182m[13:36:59][0m [32m[ INFO][0m [38;5;182m[cwbench_judges][0m Waiting for sampling client...
+[38;5;75m[13:36:59][0m [32m[ INFO][0m [38;5;75m[cwbench_judges:train][0m Starting training loop...
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from /Users/bhavesh/.netrc.
+wandb: Currently logged in as: bhavesh-haize (Haize-Research) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run exqxpiqz
+wandb: Tracking run with wandb version 0.25.1
+wandb: Run data is saved locally in /Users/bhavesh/Developer/tourno/wandb/run-20260427_133700-exqxpiqz
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run pointwise-smoke
+wandb: ⭐️ View project at https://wandb.ai/Haize-Research/tourno-cwbench
+wandb: 🚀 View run at https://wandb.ai/Haize-Research/tourno-cwbench/runs/exqxpiqz
+wandb: Detected [openai] in use.
+wandb: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+wandb: For more information, check out the docs at: https://weave-docs.wandb.ai/
+[38;5;182m[13:37:21][0m [32m[ INFO][0m [38;5;182m[cwbench_judges][0m Sampling client ready, starting workers
+[38;5;75m[13:38:13][0m [32m[ INFO][0m [38;5;75m[cwbench_judges:worker5][0m Rewards for scp_fanfic_genres_208_s3 (genre-chapter): mean=0.480 std=0.052
+[38;5;143m[13:38:14][0m [32m[ INFO][0m [38;5;143m[cwbench_judges:worker7][0m Rewards for scp_fanfic_genres_215_s9 (genre-chapter): mean=0.446 std=0.054
+[38;5;109m[13:38:19][0m [32m[ INFO][0m [38;5;109m[cwbench_judges:worker3][0m Rewards for final_unslopped_124_s7 (historical fiction): mean=0.451 std=0.044
+[38;5;143m[13:38:21][0m [32m[ INFO][0m [38;5;143m[cwbench_judges:worker1][0m Rewards for final_119_s0 (humour): mean=0.377 std=0.031
+[38;5;216m[13:38:38][0m [32m[ INFO][0m [38;5;216m[cwbench_judges:worker0][0m Rewards for extra_romance_28_s9 (): mean=0.447 std=0.029
+[38;5;143m[13:38:42][0m [32m[ INFO][0m [38;5;143m[cwbench_judges:worker4][0m Rewards for extra_challenge_28_s5 (): mean=0.453 std=0.042
+[38;5;174m[13:38:49][0m [32m[ INFO][0m [38;5;174m[cwbench_judges:worker2][0m Rewards for final_119_s8 (humour): mean=0.374 std=0.029
+[38;5;182m[13:38:50][0m [32m[ INFO][0m [38;5;182m[cwbench_judges:worker6][0m Rewards for extra_challenge_37_s6 (): mean=0.434 std=0.070
+[38;5;143m[13:39:04][0m [32m[ INFO][0m [38;5;143m[cwbench_judges:worker7][0m Rewards for final_unslopped_124_s4 (historical fiction): mean=0.423 std=0.029
+[38;5;75m[13:39:09][0m [32m[ INFO][0m [38;5;75m[cwbench_judges:worker5][0m Rewards for extra_challenge_1_s3 (): mean=0.386 std=0.028
+[38;5;75m[13:39:10][0m [32m[ INFO][0m [38;5;75m[cwbench_judges:train][0m 
+                     Step 0                     
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┓
+┃ Metric                         ┃ Value       ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━┩
+│ ac_tokens_per_turn             │ 1252.875000 │
+│ by_group/frac_all_bad          │ 0.000000    │
+│ by_group/frac_all_good         │ 0.000000    │
+│ by_group/frac_mixed            │ 1.000000    │
+│ entropy                        │ 0.742341    │
+│ judge_calls                    │ 64          │
+│ kl/policy_vs_reference         │ 0.000757    │
+│ kl/sample_train_v1             │ 0.001201    │
+│ kl/sample_train_v2             │ 0.001093    │
+│ n_datums                       │ 64          │
+│ ob_tokens_per_turn             │ 163.625000  │
+│ optim/lr                       │ 0.000040    │
+│ progress/done_frac             │ 0.200000    │
+│ reward/max                     │ 0.543182    │
+│ reward/mean                    │ 0.432670    │
+│ reward/min                     │ 0.306818    │
+│ reward/std                     │ 0.057731    │
+│ step                           │ 0           │
+│ time/total                     │ 108.749108  │
+│ total_ac_tokens                │ 80184       │
+│ total_ob_tokens                │ 10472       │
+│ turns_per_episode              │ 1.000000    │
+└────────────────────────────────┴─────────────┘
+[38;5;109m[13:39:37][0m [32m[ INFO][0m [38;5;109m[cwbench_judges:worker3][0m Rewards for final_106_s2 (first-person unique perspective): mean=0.456 std=0.049
+[38;5;143m[13:39:40][0m [32m[ INFO][0m [38;5;143m[cwbench_judges:worker1][0m Rewards for scp_fanfic_genres_206_s4 (scp): mean=0.524 std=0.039
+[38;5;143m[13:39:42][0m [32m[ INFO][0m [38;5;143m[cwbench_judges:worker4][0m Rewards for extra_romance_43_s2 (): mean=0.467 std=0.041
+[38;5;174m[13:40:14][0m [32m[ INFO][0m [38;5;174m[cwbench_judges:worker2][0m Rewards for final_106_s0 (first-person unique perspective): mean=0.432 std=0.030
+[38;5;75m[13:40:21][0m [32m[ INFO][0m [38;5;75m[cwbench_judges:worker5][0m Rewards for extra_challenge_fpp_106_s0 (first-person unique perspective): mean=0.453 std=0.033
+[38;5;216m[13:40:24][0m [32m[ INFO][0m [38;5;216m[cwbench_judges:worker0][0m Rewards for final_35_120_s8 (humour): mean=0.374 std=0.049
+[38;5;182m[13:40:24][0m [32m[ INFO][0m [38;5;182m[cwbench_judges:worker6][0m Rewards for extra_challenge_5_s8 (): mean=0.406 std=0.035
+[38;5;143m[13:40:29][0m [32m[ INFO][0m [38;5;143m[cwbench_judges:worker7][0m Rewards for extra_challenge_44_s0 (): mean=0.415 std=0.040
+[38;5;182m[13:40:30][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 1 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:30][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 1 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:30][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 1 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:30][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 1 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:30][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 1 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:31][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 1 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:31][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 1 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:31][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 1 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:33][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 2 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:34][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 2 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:34][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 2 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:34][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 2 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:34][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 2 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:34][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 2 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:35][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 2 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:35][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 2 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:37][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 4 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:38][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 4 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:38][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 4 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:38][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 4 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:38][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 4 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:38][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 4 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;143m[13:40:39][0m [32m[ INFO][0m [38;5;143m[cwbench_judges:worker1][0m Rewards for final_88_s2 (spicy romantic): mean=0.355 std=0.036
+[38;5;182m[13:40:39][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 4 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:39][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 4 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:44][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 8 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:44][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 8 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;75m[13:40:44][0m [32m[ INFO][0m [38;5;75m[cwbench_judges:train][0m 
+                     Step 1                     
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┓
+┃ Metric                         ┃ Value       ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━┩
+│ ac_tokens_per_turn             │ 1291.375000 │
+│ by_group/frac_all_bad          │ 0.000000    │
+│ by_group/frac_all_good         │ 0.000000    │
+│ by_group/frac_mixed            │ 1.000000    │
+│ entropy                        │ 0.744874    │
+│ judge_calls                    │ 64          │
+│ kl/policy_vs_reference         │ 0.000863    │
+│ kl/sample_train_v1             │ 0.001198    │
+│ kl/sample_train_v2             │ 0.001040    │
+│ n_datums                       │ 64          │
+│ ob_tokens_per_turn             │ 214.250000  │
+│ optim/lr                       │ 0.000040    │
+│ progress/done_frac             │ 0.400000    │
+│ reward/max                     │ 0.579545    │
+│ reward/mean                    │ 0.439347    │
+│ reward/min                     │ 0.281818    │
+│ reward/std                     │ 0.058582    │
+│ step                           │ 1           │
+│ time/total                     │ 94.092513   │
+│ total_ac_tokens                │ 82648       │
+│ total_ob_tokens                │ 13712       │
+│ turns_per_episode              │ 1.000000    │
+└────────────────────────────────┴─────────────┘
+[38;5;182m[13:40:44][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 8 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:45][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 8 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:45][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 8 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:45][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 8 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:46][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 8 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:46][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 8 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;109m[13:40:48][0m [32m[ INFO][0m [38;5;109m[cwbench_judges:worker3][0m Rewards for scp_fanfic_genres_208_s1 (genre-chapter): mean=0.460 std=0.036
+[38;5;182m[13:40:54][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 16 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:54][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 16 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:54][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 16 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:55][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 16 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:55][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 16 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:56][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 16 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:56][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 16 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;182m[13:40:56][0m [33m[WARNING][0m [38;5;182m[cwbench_judges][0m Retrying judges.CreativeBenchPointwiseJudge._judge_one in 16 seconds as it raised EmptyJudgeResponse: Empty judge content (finish_reason='stop', model='anthropic/claude-sonnet-4.5').
+[38;5;143m[13:41:15][0m [32m[ INFO][0m [38;5;143m[cwbench_judges:worker4][0m Rewards for scp_fanfic_genres_211_s2 (genre-chapter): mean=0.000 std=0.000
+[38;5;174m[13:41:26][0m [32m[ INFO][0m [38;5;174m[cwbench_judges:worker2][0m Rewards for final_46_s0 (): mean=0.395 std=0.029
+[38;5;75m[13:41:28][0m [32m[ INFO][0m [38;5;75m[cwbench_judges:worker5][0m Rewards for final_113_s7 (first-person unique perspective): mean=0.441 std=0.043
+[38;5;182m[13:41:37][0m [32m[ INFO][0m [38;5;182m[cwbench_judges:worker6][0m Rewards for scp_fanfic_genres_215_s5 (genre-chapter): mean=0.429 std=0.031
+[38;5;75m[13:41:37][0m [33m[WARNING][0m [38;5;75m[cwbench_judges:train][0m Step 2: expected 64 datums, got 56
+[38;5;216m[13:41:38][0m [32m[ INFO][0m [38;5;216m[cwbench_judges:worker0][0m Rewards for extra_challenge_45_s8 (): mean=0.413 std=0.032
+[38;5;143m[13:41:39][0m [32m[ INFO][0m [38;5;143m[cwbench_judges:worker7][0m Rewards for extra_romance_22_s9 (): mean=0.540 std=0.050
+[38;5;75m[13:41:46][0m [32m[ INFO][0m [38;5;75m[cwbench_judges:train][0m 
+                     Step 2                     
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┓
+┃ Metric                         ┃ Value       ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━┩
+│ ac_tokens_per_turn             │ 1282.093750 │
+│ by_group/frac_all_bad          │ 0.125000    │
+│ by_group/frac_all_good         │ 0.000000    │
+│ by_group/frac_mixed            │ 0.875000    │
+│ entropy                        │ 0.691802    │
+│ judge_calls                    │ 64          │
+│ kl/policy_vs_reference         │ 0.001023    │
+│ kl/sample_train_v1             │ 0.001256    │
+│ kl/sample_train_v2             │ 0.001076    │
+│ n_datums                       │ 56          │
+│ ob_tokens_per_turn             │ 183.000000  │
+│ optim/lr                       │ 0.000040    │
+│ progress/done_frac             │ 0.600000    │
+│ reward/max                     │ 0.522727    │
+│ reward/mean                    │ 0.362571    │
+│ reward/min                     │ 0.000000    │
+│ reward/std                     │ 0.144199    │
+│ step                           │ 2           │
+│ time/total                     │ 61.967780   │
+│ total_ac_tokens                │ 82054       │
+│ total_ob_tokens                │ 11712       │
+│ turns_per_episode              │ 1.000000    │
+└────────────────────────────────┴─────────────┘
+[38;5;143m[13:41:59][0m [32m[ INFO][0m [38;5;143m[cwbench_judges:worker1][0m Rewards for initial_45_s8 (): mean=0.478 std=0.036
+[38;5;109m[13:42:04][0m [32m[ INFO][0m [38;5;109m[cwbench_judges:worker3][0m Rewards for scp_fanfic_genres_204_s6 (scp): mean=0.572 std=0.026
+[38;5;143m[13:42:18][0m [32m[ INFO][0m [38;5;143m[cwbench_judges:worker4][0m Rewards for final_unslopped_114_s4 (first-person unique perspective): mean=0.467 std=0.044
+[38;5;174m[13:42:24][0m [32m[ INFO][0m [38;5;174m[cwbench_judges:worker2][0m Rewards for extra_romance_27_s0 (): mean=0.431 std=0.026
+[38;5;143m[13:42:37][0m [32m[ INFO][0m [38;5;143m[cwbench_judges:worker7][0m Rewards for final_35_82_s9 (first person romance, existing relationship): mean=0.420 std=0.038
+[38;5;182m[13:42:38][0m [32m[ INFO][0m [38;5;182m[cwbench_judges:worker6][0m Rewards for scp_fanfic_genres_198_s5 (fanfic-crossover): mean=0.418 std=0.024
+[38;5;75m[13:42:39][0m [32m[ INFO][0m [38;5;75m[cwbench_judges:worker5][0m Rewards for final_unslopped_119_s8 (humour): mean=0.386 std=0.033
+[38;5;216m[13:42:41][0m [32m[ INFO][0m [38;5;216m[cwbench_judges:worker0][0m Rewards for scp_fanfic_genres_207_s2 (genre-chapter): mean=0.468 std=0.023
+[38;5;109m[13:42:50][0m [32m[ INFO][0m [38;5;109m[cwbench_judges:worker3][0m Rewards for final_35_54_s2 (): mean=0.493 std=0.031
+[38;5;75m[13:42:51][0m [32m[ INFO][0m [38;5;75m[cwbench_judges:train][0m 
+                     Step 3                     
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┓
+┃ Metric                         ┃ Value       ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━┩
+│ ac_tokens_per_turn             │ 1246.515625 │
+│ by_group/frac_all_bad          │ 0.000000    │
+│ by_group/frac_all_good         │ 0.000000    │
+│ by_group/frac_mixed            │ 1.000000    │
+│ entropy                        │ 0.635522    │
+│ judge_calls                    │ 64          │
+│ kl/policy_vs_reference         │ 0.000789    │
+│ kl/sample_train_v1             │ 0.001218    │
+│ kl/sample_train_v2             │ 0.001117    │
+│ n_datums                       │ 64          │
+│ ob_tokens_per_turn             │ 346.125000  │
+│ optim/lr                       │ 0.000040    │
+│ progress/done_frac             │ 0.800000    │
+│ reward/max                     │ 0.638636    │
+│ reward/mean                    │ 0.467365    │
+│ reward/min                     │ 0.363636    │
+│ reward/std                     │ 0.066632    │
+│ step                           │ 3           │
+│ time/total                     │ 64.838982   │
+│ total_ac_tokens                │ 79777       │
+│ total_ob_tokens                │ 22152       │
+│ turns_per_episode              │ 1.000000    │
+└────────────────────────────────┴─────────────┘
+[38;5;143m[13:42:59][0m [32m[ INFO][0m [38;5;143m[cwbench_judges:worker1][0m Rewards for extra_challenge_49_s8 (): mean=0.387 std=0.030
+[38;5;143m[13:43:01][0m [32m[ INFO][0m [38;5;143m[cwbench_judges:worker4][0m Rewards for final_85_s7 (spicy romantic): mean=0.387 std=0.033
+[38;5;174m[13:43:16][0m [32m[ INFO][0m [38;5;174m[cwbench_judges:worker2][0m Rewards for final_unslopped_45_s8 (): mean=0.444 std=0.054
+[38;5;143m[13:43:24][0m [32m[ INFO][0m [38;5;143m[cwbench_judges:worker7][0m Rewards for scp_fanfic_genres_201_s1 (scp): mean=0.586 std=0.040
+[38;5;182m[13:43:32][0m [32m[ INFO][0m [38;5;182m[cwbench_judges:worker6][0m Rewards for scp_fanfic_genres_202_s7 (scp): mean=0.409 std=0.026
+[38;5;75m[13:43:41][0m [32m[ INFO][0m [38;5;75m[cwbench_judges:train][0m 
+                     Step 4                     
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┓
+┃ Metric                         ┃ Value       ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━┩
+│ ac_tokens_per_turn             │ 1218.046875 │
+│ by_group/frac_all_bad          │ 0.000000    │
+│ by_group/frac_all_good         │ 0.000000    │
+│ by_group/frac_mixed            │ 1.000000    │
+│ entropy                        │ 0.720981    │
+│ judge_calls                    │ 64          │
+│ kl/policy_vs_reference         │ 0.000613    │
+│ kl/sample_train_v1             │ 0.000915    │
+│ kl/sample_train_v2             │ 0.001086    │
+│ n_datums                       │ 64          │
+│ ob_tokens_per_turn             │ 319.500000  │
+│ optim/lr                       │ 0.000040    │
+│ progress/done_frac             │ 1.000000    │
+│ reward/max                     │ 0.665909    │
+│ reward/mean                    │ 0.444957    │
+│ reward/min                     │ 0.329545    │
+│ reward/std                     │ 0.074113    │
+│ step                           │ 4           │
+│ time/total                     │ 49.878421   │
+│ total_ac_tokens                │ 77955       │
+│ total_ob_tokens                │ 20448       │
+│ turns_per_episode              │ 1.000000    │
+└────────────────────────────────┴─────────────┘
+wandb: updating run metadata
+wandb: uploading history steps 431-440, summary, console lines 196-224
+wandb: 
+wandb: Run history:
+wandb:                                               ac_tokens_per_turn ▄█▇▄▁
+wandb:                                            by_group/frac_all_bad ▁▁█▁▁
+wandb:                                           by_group/frac_all_good ▁▁▁▁▁
+wandb:                                              by_group/frac_mixed ██▁██
+wandb:                            category/fanfic-crossover/reward_mean ▁
+wandb:                             category/fanfic-crossover/reward_std ▁
+wandb: category/first person romance, existing relationship/reward_mean ▁
+wandb:  category/first person romance, existing relationship/reward_std ▁
+wandb:             category/first-person unique perspective/reward_mean ▆▁▅▃█
+wandb:              category/first-person unique perspective/reward_std █▁▂▆▆
+wandb:                                                              +72 ...
+wandb: 
+wandb: Run summary:
+wandb:                                               ac_tokens_per_turn 1218.04688
+wandb:                                            by_group/frac_all_bad 0
+wandb:                                           by_group/frac_all_good 0
+wandb:                                              by_group/frac_mixed 1
+wandb:                            category/fanfic-crossover/reward_mean 0.41818
+wandb:                             category/fanfic-crossover/reward_std 0.02448
+wandb: category/first person romance, existing relationship/reward_mean 0.41989
+wandb:  category/first person romance, existing relationship/reward_std 0.03777
+wandb:             category/first-person unique perspective/reward_mean 0.46676
+wandb:              category/first-person unique perspective/reward_std 0.04449
+wandb:                                                              +72 ...
+wandb: 
+wandb: 🚀 View run pointwise-smoke at: https://wandb.ai/Haize-Research/tourno-cwbench/runs/exqxpiqz
+wandb: ⭐️ View project at: https://wandb.ai/Haize-Research/tourno-cwbench
+wandb: Synced 5 W&B file(s), 79 media file(s), 158 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260427_133700-exqxpiqz/logs
+[38;5;182m[13:43:41][0m [32m[ INFO][0m [38;5;182m[cwbench_judges][0m Training loop finished
+[38;5;182m[13:43:41][0m [32m[ INFO][0m [38;5;182m[cwbench_judges][0m Training complete

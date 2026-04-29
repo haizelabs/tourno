@@ -48,10 +48,13 @@ class TrainConfig(pydantic.BaseModel):
     log_path: str = "/tmp/swebench-rl"
     ttl_seconds: int | None = 604800
     wandb_project: str | None = None
+    wandb_run_name: str | None = None
     docent_collection: str | None = None
 
     @property
     def run_name(self) -> str:
+        if self.wandb_run_name:
+            return self.wandb_run_name
         model_short = self.base_model.split("/")[-1]
         name = f"{model_short}_lr{self.learning_rate}_bs{self.batch_size}_lora{self.lora_rank}_{self.judge_type}_judge{self.judge_model}"
         if self.pairwise_alpha > 0:

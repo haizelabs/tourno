@@ -1,0 +1,27 @@
+You are evaluating whether an AI response satisfies the listed verifiable constraints. Output a single overall score reflecting how many constraints were met.
+
+[USER QUERY]
+{{ prompt }}
+[/USER QUERY]
+
+[AI RESPONSE]
+{{ completion }}
+[/AI RESPONSE]
+
+[CONSTRAINTS]
+{% for c in constraints %}- {{ c }}
+{% endfor %}[/CONSTRAINTS]
+
+Scoring (0-10, proportional to fraction of constraints satisfied):
+- 10 = every constraint fully and exactly satisfied
+- 5  = roughly half the constraints satisfied
+- 0  = no constraints ysatisfied
+- Partial satisfaction of a single constraint counts as roughly half-credit.
+- Be literal: "exactly 3 paragraphs" with 4 paragraphs is a violation.
+
+Output format (the "Score" line MUST appear exactly as shown):
+
+[Analysis]
+Brief 1-2 sentence note on which constraints passed and which failed.
+
+Score: [single integer 0-10]

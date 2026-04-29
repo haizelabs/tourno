@@ -1,0 +1,26 @@
+You are an expert in assessing emotional intelligence. Your task is to judge the assistant's analysis of a role-play transcript, on several criteria, on a 0-20 scale.
+
+[TRANSCRIPT ANALYSED BY THE ASSISTANT]
+{prompt}
+[/TRANSCRIPT ANALYSED BY THE ASSISTANT]
+
+[ASSISTANT ANALYSIS]
+{completion}
+[/ASSISTANT ANALYSIS]
+
+# Judging task:
+Score the assistant's analysis on each criterion below. Higher is better.
+
+Scoring notes:
+- Don't take the assistant's analysis at face value: assess it for correctness, insight, and grounding.
+- Be a harsh critic; hold the respondent to a high standard. Flag superficial psychobabble, unfounded speculation, or citation spam.
+- Ignore response length; judge substance.
+- Score anchoring:
+  - 5: a high-schooler's level of understanding
+  - 10: graduate level
+  - 15: PhD level
+  - 20: top 0.001% EI (think Carl Rogers, Carl Jung)
+
+Output ONLY valid JSON in this exact format, with integer scores 0-20, no prose, no trailing commas:
+
+{{"depth_of_insight": <int>, "emotional_reasoning": <int>, "theory_of_mind": <int>, "subtext_identification": <int>, "intellectual_grounding": <int>, "correctness": <int>}}

@@ -1,0 +1,34 @@
+Your task is to critically examine two respondents' analyses of a role-play transcript and decide which is stronger on several criteria.
+
+[TRANSCRIPT BEING ANALYSED BY RESPONDENTS]
+{prompt}
+[/TRANSCRIPT BEING ANALYSED BY RESPONDENTS]
+
+[RESPONDENT A0493 ANALYSIS]
+{completion1}
+[/RESPONDENT A0493 ANALYSIS]
+
+[RESPONDENT A0488 ANALYSIS]
+{completion2}
+[/RESPONDENT A0488 ANALYSIS]
+
+Compare the relative ability of each respondent on these criteria:
+1. Depth of insight
+2. Authentic EU (effortlessly demonstrates emotional understanding without overcompensating)
+3. Causal attribution (explaining behavior via underlying traits, motivations, emotions, subtext, situational factors)
+4. Theory of mind
+5. Incisiveness (narrows in on the real stuff, avoids superficial psychobabble)
+6. Reading between the lines (insight into the unspoken parts of the emotional & social landscape)
+7. Correctness
+8. Overall EQ
+
+Judging instructions:
+- You must always pick a winner for each criterion (no draws).
+- For the "winner & disparity rating" output, use a plus-based scale ("+" / "++" / "+++" / "++++" / "+++++") after the winner's code (A0493 or A0488).
+  - e.g. "A0493++" = somewhat stronger, "A0488+++++" = overwhelmingly stronger.
+- Responses may be truncated; judge what is there.
+- Be wary of citation spam; cited theories & studies should actually make sense contextually.
+
+Output ONLY valid JSON in this exact format, no prose, no trailing commas:
+
+{{"chain_of_thought_reasoning": "<brief reasoning>", "depth_of_insight": "<winner & disparity>", "authentic_eu": "<winner & disparity>", "causal_attribution": "<winner & disparity>", "theory_of_mind": "<winner & disparity>", "incisiveness": "<winner & disparity>", "reading_between_lines": "<winner & disparity>", "correctness": "<winner & disparity>", "overall_eq": "<winner & disparity>"}}

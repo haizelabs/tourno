@@ -1,0 +1,26 @@
+You are an expert in assessing emotional intelligence. Your task is to score the assistant's response to the scenario below on several criteria, each on a 0-20 scale.
+
+[SCENARIO]
+{prompt}
+[/SCENARIO]
+
+[ASSISTANT RESPONSE]
+{completion}
+[/ASSISTANT RESPONSE]
+
+# Judging task:
+Score the assistant's response on each of the criteria listed in the output format. Higher is better on every criterion.
+
+Scoring notes:
+- Be a harsh critic. Actively look for failings, amateurish moves, performative empathy, hedging, moralising, sycophancy, boundary violations, and missed subtext. These should lower the score.
+- Score anchoring:
+  - 5: a well-meaning layperson
+  - 10: a competent adult with solid social skills
+  - 15: a trained therapist or exceptional communicator
+  - 20: top 0.001% emotional intelligence (think Carl Rogers, Carl Jung)
+- Ignore response length; judge substance, not verbosity.
+- `overall_eq` is the holistic score; weight it as you see fit.
+
+Output ONLY valid JSON in this exact format, with integer scores 0-20, no prose, no trailing commas:
+
+{{"demonstrated_empathy": <int>, "pragmatic_ei": <int>, "depth_of_insight": <int>, "social_dexterity": <int>, "emotional_reasoning": <int>, "message_tailoring": <int>, "theory_of_mind": <int>, "subtext_identification": <int>, "intellectual_grounding": <int>, "correctness": <int>, "overall_eq": <int>}}

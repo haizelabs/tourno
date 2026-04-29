@@ -33,8 +33,10 @@ pioneer/              # Training loop, logging, model management (built on Tinke
 scripts/
   synthetic-experiments/    # Synthetic two-Gaussian experiment
   healthbench-experiments/  # HealthBench RL training, evaluation, and plotting
-datasets/             # HealthBench train/val/test splits
-prompts/              # Judge prompt templates
+  eqbench-experiments/      # EQ-Bench 3 RL training
+  cwbench-experiments/      # Creative Writing Bench v3 RL training
+datasets/             # HealthBench, EQ-Bench 3, and Creative Writing Bench v3 splits
+prompts/              # Judge and master prompt templates
 ```
 
 ## Experiments
@@ -132,7 +134,68 @@ uv run scripts/healthbench-experiments/plot_paper_line_chart.py \
 
 Pass `--judges judge1 judge2` to produce a side-by-side multi-judge comparison.
 
-### 4. Length bias analysis
+### 4. EQ-Bench 3 RL training
+
+Trains a language model on EQ-Bench 3 (emotional-intelligence role-play + analysis
+scenarios) with the same pointwise / pairwise / mixture reward options. Requires
+a running Tinker service and an `OPENAI_API_KEY` for the judge.
+
+First, build the dataset splits from the vendored scenarios file:
+
+```bash
+uv run scripts/eqbench-experiments/build_dataset.py
+# → datasets/eqbench3_{train,val,test}.jsonl
+```
+
+Then train:
+
+```bash
+# TournO (mixture of pointwise + pairwise)
+uv run scripts/eqbench-experiments/train_no_reasoning_grade.py \
+    --judge-type mixture --pairwise-alpha 3.0 --judge-model gpt-4.1-mini \
+    --base-model Qwen/Qwen3-8B --n-steps 400 --max-tokens 2048 \
+    --log-path ./eqbench3-rl
+```
+
+Flags mirror the HealthBench script. EQ-Bench 3's rubric is fixed per task
+type (standard vs. analysis) rather than per-prompt; the judge class
+(`scripts/eqbench-experiments/judges.py`) selects the right rubric and pairwise
+criterion set at runtime.
+
+The policy is prompted with EQ-Bench 3's master prompt (`# I'm thinking & feeling`
+/ `# They're thinking & feeling` / `# My response` for role-play; 1000-word
+analysis for analysis tasks). Rewards for standard tasks weight `overall_eq × 3`
+to match EQ-Bench 3's canonical scoring.
+
+### 5. Creative Writing Bench v3 RL training
+
+Trains on EQ-Bench's Creative Writing v3 — 321 single-shot writing prompts
+(32 scenarios × 10 seed modifiers each) scored by an LLM judge on a fixed
+22-criterion rubric (13 positive, 9 negative; negatives are inverted before
+averaging).
+
+Build the splits (scenario-stratified: all seeds of a scenario stay in one split):
+
+```bash
+uv run scripts/cwbench-experiments/build_dataset.py
+# → datasets/cwbench_{train,val,test}.jsonl  (271 / 20 / 30 samples)
+```
+
+Train:
+
+```bash
+# TournO (mixture of pointwise + pairwise)
+uv run scripts/cwbench-experiments/train_no_reasoning_grade.py \
+    --judge-type mixture --pairwise-alpha 3.0 --judge-model gpt-4.1-mini \
+    --base-model Qwen/Qwen3-8B --n-steps 400 --max-tokens 2048 \
+    --log-path ./cwbench-rl
+```
+
+Flags mirror the HealthBench script. No master-prompt wrapping here — the
+`writing_prompt` field (with `<SEED>` already substituted per seed modifier)
+IS the prompt fed to the policy.
+
+### 6. Length bias analysis
 
 Measures whether the pointwise judge exhibits length bias by (1) sampling multiple completions per prompt and correlating length with score, and (2) rephrasing completions to controlled lengths and re-scoring.
 

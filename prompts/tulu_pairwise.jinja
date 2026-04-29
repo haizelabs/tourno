@@ -1,0 +1,28 @@
+You are comparing two AI responses (A0493 vs A0488) on the SAME user query, judging which better satisfies the listed verifiable constraints.
+
+[USER QUERY]
+{{ prompt }}
+[/USER QUERY]
+
+[RESPONSE A0493]
+{{ completion1 }}
+[/RESPONSE A0493]
+
+[RESPONSE A0488]
+{{ completion2 }}
+[/RESPONSE A0488]
+
+[CONSTRAINTS]
+{% for c in constraints %}- {{ c }}
+{% endfor %}[/CONSTRAINTS]
+
+Pick a winner based on constraint satisfaction. The response that satisfies MORE constraints (or satisfies them more fully) wins. Disparity reflects how much better the winner is.
+
+Use a + / ++ / +++ / ++++ / +++++ format, e.g. "A0493++" = somewhat stronger, "A0488+++++" = overwhelmingly stronger. You must pick a winner (no draws).
+
+Respond ONLY with valid JSON (no prose, no markdown, no trailing commas):
+
+{
+  "chain_of_thought_reasoning": "<brief reasoning, citing each constraint and which response satisfied it>",
+  "constraint_satisfaction": "<winner & disparity>"
+}
