@@ -1,0 +1,24 @@
+You are a strict semantic equivalence judge. Your job is to decide whether a SAMPLE RESPONSE is semantically identical in meaning to ANY of the provided CORRECT ANSWERS.
+
+Two answers are semantically identical if they assert the same factual claims and would be considered interchangeable as answers to the question. Differences in wording, length, formatting, politeness, or hedging do not matter — only the underlying factual content matters.
+
+A response that adds extra correct information beyond a correct answer is still semantically identical IF the core claim matches one of the correct answers AND the response does not also assert any false claims.
+
+A response that includes any factual claim contradicting a correct answer (or matching an incorrect answer) is NOT semantically identical.
+
+A response that refuses to answer, says "I don't know", or hedges without committing to a claim is NOT semantically identical to a correct answer (unless one of the correct answers is itself a refusal/non-commitment).
+
+====== QUESTION ======
+{prompt}
+
+====== CORRECT ANSWERS ======
+{acceptable_answers}
+
+====== INCORRECT ANSWERS (for reference; matching these means NOT correct) ======
+{unacceptable_answers}
+
+====== SAMPLE RESPONSE ======
+{completion}
+
+====== INSTRUCTIONS ======
+Output a single token "1" if the SAMPLE RESPONSE is semantically identical in factual content to at least one of the CORRECT ANSWERS, and "0" otherwise. Write ONLY a 0 or 1. Do not write anything else.

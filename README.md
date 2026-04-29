@@ -33,7 +33,8 @@ pioneer/              # Training loop, logging, model management (built on Tinke
 scripts/
   synthetic-experiments/    # Synthetic two-Gaussian experiment
   healthbench-experiments/  # HealthBench RL training, evaluation, and plotting
-datasets/             # HealthBench train/val/test splits
+  truthfulqa-experiments/   # TruthfulQA RL training, evaluation, and plotting
+datasets/             # HealthBench and TruthfulQA train/val/test splits
 prompts/              # Judge prompt templates
 ```
 
@@ -132,7 +133,44 @@ uv run scripts/healthbench-experiments/plot_paper_line_chart.py \
 
 Pass `--judges judge1 judge2` to produce a side-by-side multi-judge comparison.
 
-### 4. Length bias analysis
+### 4. TruthfulQA RL training
+
+Trains a language model on TruthfulQA using pointwise, pairwise, or mixture (TournO) rewards. The LLM judge grades completions against known acceptable and unacceptable reference answers. Requires a running Tinker service.
+
+First, prepare the dataset (downloads from HuggingFace and splits into train/val/test):
+
+```bash
+uv run scripts/truthfulqa-experiments/prepare_dataset.py
+```
+
+Then train:
+
+```bash
+# Pointwise reward
+uv run scripts/truthfulqa-experiments/train.py \
+    --judge-type pointwise --judge-model gpt-4.1-mini \
+    --base-model Qwen/Qwen3-8B --n-steps 400
+
+# Pairwise reward (batched ELO)
+uv run scripts/truthfulqa-experiments/train.py \
+    --judge-type pairwise --judge-model gpt-4.1-mini \
+    --base-model Qwen/Qwen3-8B --n-steps 400
+
+# TournO (mixture of pointwise + pairwise)
+uv run scripts/truthfulqa-experiments/train.py \
+    --judge-type mixture --pairwise-alpha 3.0 --judge-model gpt-4.1-mini \
+    --base-model Qwen/Qwen3-8B --n-steps 400
+```
+
+The training-time judge evaluates each completion by comparing it against the dataset's correct answers (acceptable) and incorrect answers (unacceptable), scoring truthfulness on a 0-10 scale normalized to [0, 1].
+
+Key flags (same as HealthBench, plus):
+
+| Flag         | Default          | Description                        |
+| ------------ | ---------------- | ---------------------------------- |
+| `--log-path` | ./truthfulqa-rl  | Checkpoint and log directory       |
+
+### 5. Length bias analysis (HealthBench)
 
 Measures whether the pointwise judge exhibits length bias by (1) sampling multiple completions per prompt and correlating length with score, and (2) rephrasing completions to controlled lengths and re-scoring.
 

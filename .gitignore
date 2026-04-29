@@ -8,3 +8,5 @@ scrap/
 healthbench-rl*
 healthbench-results/
 figures/
+logs/
+truthfulqa-rl/
