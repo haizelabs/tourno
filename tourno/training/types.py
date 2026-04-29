@@ -86,10 +86,7 @@ class DPOConfig(pydantic.BaseModel):
     lr_min: float = 0.0
     beta: float = 0.1
     batch_size: int = 64
-    num_substeps: int = 1
-    n_epochs: int = 1
     n_steps: int = 100
-    seed: int = 42
 
     save_every: int = 20
     log_path: str = "/tmp/dpo"
@@ -99,10 +96,7 @@ class DPOConfig(pydantic.BaseModel):
     @property
     def run_name(self) -> str:
         model_short = self.base_model.split("/")[-1]
-        name = (
-            f"{model_short}_lr{self.learning_rate}_bs{self.batch_size}"
-            f"_lora{self.lora_rank}_dpo_beta{self.beta}"
-        )
+        name = f"{model_short}_lr{self.learning_rate}_bs{self.batch_size}_lora{self.lora_rank}_dpo_beta{self.beta}"
         return name
 
 

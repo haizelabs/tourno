@@ -1,4 +1,5 @@
 import asyncio
+import threading
 from pathlib import Path
 from typing import Any, Generic, TypeVar
 
@@ -33,6 +34,7 @@ class DataLoader(Generic[SampleT]):
 
         self.batch_size = batch_size
         self._iter_lock = asyncio.Lock()
+        self._sync_iter_lock = threading.Lock()
 
         self._curr_dataset = self._load_dataset(dataset_path, split=split, **kwargs)
         if max_length is not None:
@@ -46,24 +48,34 @@ class DataLoader(Generic[SampleT]):
     def __aiter__(self):
         return self
 
+    def __iter__(self):
+        return self
+
+    def __next__(self) -> tuple[int, list[SampleT | dict[str, Any]]]:
+        with self._sync_iter_lock:
+            return self._next_batch()
+
     async def __anext__(self) -> tuple[int, list[SampleT | dict[str, Any]]]:
         async with self._iter_lock:
-            remaining = self.num_rows - self.curr_epoch_step
-            n = min(self.batch_size, remaining)
-            if n == 0:
-                self.curr_epoch += 1
-                self.curr_epoch_step = 0
-                self._set_dataset_to_epoch(self.curr_epoch)
-                n = min(self.batch_size, self.num_rows)
+            return self._next_batch()
 
-            rows = self._curr_dataset[self.curr_epoch_step : self.curr_epoch_step + n]
-            self.curr_epoch_step += n
+    def _next_batch(self) -> tuple[int, list[SampleT | dict[str, Any]]]:
+        remaining = self.num_rows - self.curr_epoch_step
+        n = min(self.batch_size, remaining)
+        if n == 0:
+            self.curr_epoch += 1
+            self.curr_epoch_step = 0
+            self._set_dataset_to_epoch(self.curr_epoch)
+            n = min(self.batch_size, self.num_rows)
 
-            batch = [{k: rows[k][i] for k in rows} for i in range(n)]
-            if self.sample_model is not None:
-                return self.curr_epoch, [self.sample_model.model_validate(row) for row in batch]
+        rows = self._curr_dataset[self.curr_epoch_step : self.curr_epoch_step + n]
+        self.curr_epoch_step += n
 
-            return self.curr_epoch, batch
+        batch = [{k: rows[k][i] for k in rows} for i in range(n)]
+        if self.sample_model is not None:
+            return self.curr_epoch, [self.sample_model.model_validate(row) for row in batch]
+
+        return self.curr_epoch, batch
 
     def _load_dataset(self, dataset_path: str, *, split: str | None, **kwargs: Any) -> Dataset:
         path = Path(dataset_path)
