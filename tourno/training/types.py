@@ -18,7 +18,15 @@ class TrajectoryGroup(pydantic.BaseModel):
     judge_calls: int = 0
 
 
-class TrainConfig(pydantic.BaseModel):
+class DPOPair(pydantic.BaseModel):
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
+
+    obs: tinker_types.ModelInput
+    chosen: tinker_types.SampledSequence
+    rejected: tinker_types.SampledSequence
+
+
+class GRPOConfig(pydantic.BaseModel):
     base_model: str = "Qwen/Qwen3-8B"
     lora_rank: int = 32
     judge_type: str = "pointwise"
@@ -60,6 +68,41 @@ class TrainConfig(pydantic.BaseModel):
         if self.kl_coef > 0:
             name += f"_kl{self.kl_coef}"
 
+        return name
+
+
+class DPOConfig(pydantic.BaseModel):
+    base_model: str = "Qwen/Qwen3-8B"
+    lora_rank: int = 32
+    load_checkpoint_path: str | None = None
+    resume_optimizer: bool = False
+    reference_model: str | None = None
+    reference_model_path: str | None = None
+    base_url: str | None = None
+
+    learning_rate: float = 1e-5
+    lr_schedule: str = "linear"
+    lr_warmup_steps: int = 0
+    lr_min: float = 0.0
+    beta: float = 0.1
+    batch_size: int = 64
+    num_substeps: int = 1
+    n_epochs: int = 1
+    n_steps: int = 100
+    seed: int = 42
+
+    save_every: int = 20
+    log_path: str = "/tmp/dpo"
+    ttl_seconds: int | None = 604800
+    wandb_project: str | None = None
+
+    @property
+    def run_name(self) -> str:
+        model_short = self.base_model.split("/")[-1]
+        name = (
+            f"{model_short}_lr{self.learning_rate}_bs{self.batch_size}"
+            f"_lora{self.lora_rank}_dpo_beta{self.beta}"
+        )
         return name
 
 

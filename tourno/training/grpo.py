@@ -1,23 +1,24 @@
 import asyncio
+import inspect
 import json
 import math
 import os
 import time
-from typing import Any, Callable, cast
+from typing import Any, Awaitable, Callable, cast
 
 import numpy as np
 import scipy.signal
 import tinker
 import torch
-import wandb
 from tinker import types as tinker_types
 from tinker_cookbook.display import colorize_example
 from tinker_cookbook.tokenizer_utils import get_tokenizer
 
-from pioneer.logger import get_logger, log_metrics, trace
-from pioneer.models import get_sampling_client, get_training_client
-from pioneer.types import (
-    TrainConfig,
+import wandb
+from tourno.logger import get_logger, log_metrics, trace
+from tourno.training.models import get_sampling_client, get_training_client
+from tourno.training.types import (
+    GRPOConfig,
     TrainingQueue,
     TrajectoryGroup,
 )
@@ -232,7 +233,7 @@ def _remove_mask(datum: tinker_types.Datum) -> tinker_types.Datum:
     )
 
 
-def get_learning_rate(step: int, config: TrainConfig) -> float:
+def get_learning_rate(step: int, config: GRPOConfig) -> float:
     if step < config.lr_warmup_steps:
         return config.learning_rate * (step + 1) / config.lr_warmup_steps
 
@@ -279,30 +280,32 @@ async def save_checkpoint_and_get_sampling_client(
     training_client: tinker.TrainingClient,
     step: int,
     log_path: str,
-    save_every: int,
     ttl_seconds: int | None = None,
+    on_checkpoint_save: Callable[[int, str, str], Awaitable[None] | None] | None = None,
 ) -> tuple[tinker.SamplingClient, dict[str, Any]]:
     log = get_logger()
-    metrics: dict[str, Any] = {}
-    if save_every > 0 and step > 0 and step % save_every == 0:
-        name = f"{step:06d}"
-        state_future = await training_client.save_state_async(name, ttl_seconds=ttl_seconds)
-        sampler_future = await training_client.save_weights_for_sampler_async(
-            name, ttl_seconds=ttl_seconds
-        )
-        state_result = await state_future.result_async()
-        sampler_result = await sampler_future.result_async()
+    name = f"{step:06d}"
+    state_future = await training_client.save_state_async(name, ttl_seconds=ttl_seconds)
+    sampler_future = await training_client.save_weights_for_sampler_async(
+        name, ttl_seconds=ttl_seconds
+    )
+    state_result = await state_future.result_async()
+    sampler_result = await sampler_future.result_async()
 
-        paths = {"state_path": state_result.path, "sampler_path": sampler_result.path}
-        os.makedirs(log_path, exist_ok=True)
-        with open(os.path.join(log_path, "checkpoints.jsonl"), "a") as f:
-            f.write(json.dumps({"name": name, "step": step, **paths}) + "\n")
+    paths = {"state_path": state_result.path, "sampler_path": sampler_result.path}
+    checkpoint = {"name": name, "step": step, **paths}
+    os.makedirs(log_path, exist_ok=True)
+    with open(os.path.join(log_path, "checkpoints.jsonl"), "a") as f:
+        f.write(json.dumps(checkpoint) + "\n")
 
-        log.info(f"Saved checkpoint at step {step}: {paths}")
-        metrics["checkpoint"] = name
-        return training_client.create_sampling_client(sampler_result.path), metrics
+    log.info(f"Saved checkpoint at step {step}: {paths}")
+    if on_checkpoint_save is not None:
+        result = on_checkpoint_save(step, name, sampler_result.path)
+        if inspect.isawaitable(result):
+            await result
 
-    return await training_client.save_weights_and_get_sampling_client_async(), metrics
+    metrics: dict[str, Any] = {"checkpoint": name}
+    return training_client.create_sampling_client(sampler_result.path), metrics
 
 
 async def train_step(
@@ -357,9 +360,10 @@ async def train_step(
 
 @trace
 async def training_loop(
-    config: TrainConfig,
+    config: GRPOConfig,
     training_queue: TrainingQueue,
     update_sampling_client: Callable[[tinker.SamplingClient, int], None],
+    on_checkpoint_save: Callable[[int, str, str], Awaitable[None] | None] | None = None,
 ) -> None:
     log = get_logger("train")
     log.info("Starting training loop...")
@@ -386,13 +390,7 @@ async def training_loop(
         resume_optimizer=config.resume_optimizer,
         base_url=config.base_url,
     )
-    sampling_client, _ = await save_checkpoint_and_get_sampling_client(
-        training_client,
-        step=0,
-        log_path=config.log_path,
-        save_every=config.save_every,
-        ttl_seconds=config.ttl_seconds,
-    )
+    sampling_client = await training_client.save_weights_and_get_sampling_client_async()
     update_sampling_client(sampling_client, -1)
 
     ### Initialize reference client if kl_coef > 0 ###
@@ -477,13 +475,21 @@ async def training_loop(
         metrics.update(compute_kl_metrics(datums, training_logprobs))
 
         ### Checkpoint + update sampling client ###
-        sampling_client, checkpoint_metrics = await save_checkpoint_and_get_sampling_client(
-            training_client,
-            step + 1,
-            config.log_path,
-            config.save_every,
-            config.ttl_seconds,
+        completed_step = step + 1
+        should_save_checkpoint = (
+            config.save_every > 0 and completed_step > 0 and completed_step % config.save_every == 0
         )
+        if should_save_checkpoint:
+            sampling_client, checkpoint_metrics = await save_checkpoint_and_get_sampling_client(
+                training_client,
+                completed_step,
+                config.log_path,
+                config.ttl_seconds,
+                on_checkpoint_save=on_checkpoint_save,
+            )
+        else:
+            sampling_client = await training_client.save_weights_and_get_sampling_client_async()
+            checkpoint_metrics = {}
         update_sampling_client(sampling_client, step)
         metrics.update(checkpoint_metrics)
 
@@ -498,6 +504,22 @@ async def training_loop(
             wandb.log(metrics, step=step)
 
         step += 1
+
+    final_step = config.n_steps
+    already_saved = config.save_every > 0 and final_step > 0 and final_step % config.save_every == 0
+    if final_step > 0 and not already_saved:
+        log.info(f"Saving final checkpoint at step {final_step}")
+        sampling_client, final_save_metrics = await save_checkpoint_and_get_sampling_client(
+            training_client,
+            final_step,
+            config.log_path,
+            config.ttl_seconds,
+            on_checkpoint_save=on_checkpoint_save,
+        )
+        update_sampling_client(sampling_client, final_step - 1)
+        log_metrics(final_save_metrics, step=final_step - 1)
+        if wandb_run is not None:
+            wandb.log(final_save_metrics, step=final_step - 1)
 
     if wandb_run is not None:
         wandb_run.finish()
