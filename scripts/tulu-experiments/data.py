@@ -7,8 +7,13 @@ from tourno.training.types import PreferenceSample
 
 
 class TuluSample(pydantic.BaseModel):
+    model_config = pydantic.ConfigDict(populate_by_name=True)
+
     id: str
-    prompt: str
+    # Dataset rows store the chat-formatted messages list under `prompt` and the
+    # plain string under `raw_prompt`. The training code wraps the string in a
+    # chat template itself, so we load `raw_prompt` into this field.
+    prompt: str = pydantic.Field(validation_alias=pydantic.AliasChoices("raw_prompt", "prompt"))
     constraints: list[str]
     row_id: int | None = None
 

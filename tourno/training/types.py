@@ -17,6 +17,12 @@ class TrajectoryGroup(pydantic.BaseModel):
     rewards: list[float]
     judge_calls: int = 0
 
+    # Optional trace metadata for downstream logging (wandb tables, JSONL, etc.)
+    prompt: str | None = None
+    completions: list[str] | None = None
+    sample_id: str | None = None
+    worker_id: int | None = None
+
 
 class PreferenceSample(pydantic.BaseModel):
     prompt: list[dict[str, str]]

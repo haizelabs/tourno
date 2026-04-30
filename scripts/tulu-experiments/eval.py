@@ -246,6 +246,8 @@ async def main(
             else f"{name}: all errors ({stats['n_errors']}/{stats['n_completions_total']})"
         )
 
+    return summary
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Tulu multi-judge eval")

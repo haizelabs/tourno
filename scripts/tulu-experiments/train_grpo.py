@@ -4,10 +4,11 @@ import logging
 import math
 import os
 from pathlib import Path
-from typing import Awaitable, Callable
+from typing import Any, Awaitable, Callable
 
 import numpy as np
 import tinker
+import wandb
 import weave
 from data import TuluDataLoader, TuluSample
 from dotenv import load_dotenv
@@ -171,6 +172,10 @@ async def rollout(
         trajectories=trajectories,
         rewards=rewards,
         judge_calls=judge_calls,
+        prompt=sample.prompt,
+        completions=completion_texts,
+        sample_id=sample.id,
+        worker_id=worker_id,
     )
     await training_queue.put((sampling_client_step, traj_group))
 
@@ -188,6 +193,9 @@ async def main(
     temperature: float,
     renderer_name: str | None,
     on_checkpoint_save: Callable[[int, str, str], Awaitable[None] | None] | None = None,
+    extra_metrics_fn: Callable[[int, list[TrajectoryGroup]], Awaitable[dict[str, Any]]]
+    | None = None,
+    pending_eval_tasks: list[asyncio.Task] | None = None,
 ):
     ### Setup tokenizer and renderer ###
     log = get_logger()
@@ -214,6 +222,7 @@ async def main(
             training_queue,
             update_sampling_client,
             on_checkpoint_save,
+            extra_metrics_fn=extra_metrics_fn,
         )
     )
 
@@ -271,6 +280,13 @@ async def main(
                 task.cancel()
 
         await asyncio.gather(*all_tasks, return_exceptions=True)
+
+        if pending_eval_tasks:
+            outstanding = [t for t in pending_eval_tasks if not t.done()]
+            if outstanding:
+                log.info(f"Waiting for {len(outstanding)} in-flight eval task(s) to finish...")
+                await asyncio.gather(*outstanding, return_exceptions=True)
+
         log.info("Training complete")
 
 
@@ -320,6 +336,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--log-level", type=str, default="INFO")
     parser.add_argument("--log-filter", type=str, default=None)
     parser.add_argument("--wandb-project", type=str, default=None)
+    parser.add_argument(
+        "--enable-weave",
+        action="store_true",
+        help=(
+            "Enable Weave tracing (calls weave.init). Off by default — @weave.op "
+            "decorators stay on the code but early-exit when weave is not initialized."
+        ),
+    )
+    parser.add_argument(
+        "--no-trace-table",
+        action="store_true",
+        help="Disable the wandb incremental rollouts trace Table.",
+    )
 
     ### Model / optimizer settings ###
     parser.add_argument("--base-model", type=str, default="Qwen/Qwen3-8B")
@@ -340,7 +369,15 @@ def parse_args() -> argparse.Namespace:
     )
 
     ### Checkpoint / runtime settings ###
-    parser.add_argument("--save-every", type=int, default=20)
+    parser.add_argument(
+        "--save-every",
+        type=int,
+        default=10,
+        help=(
+            "Save a checkpoint every N steps. Each checkpoint also kicks off a "
+            "validation run (in parallel with continued training) if --no-eval is unset."
+        ),
+    )
     parser.add_argument("--log-path", type=str, default="./tulu-rl")
     parser.add_argument("--base-url", type=str, default=None)
 
@@ -373,13 +410,20 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     ### Initialize logging ###
     args = parse_args()
+
+    if not args.enable_weave:
+        os.environ.setdefault("WANDB_DISABLE_WEAVE", "true")
+        os.environ.setdefault("WEAVE_DISABLED", "true")
+
     setup(
         level=getattr(logging, args.log_level.upper()),
         filter_pattern=args.log_filter,
     )
 
     ### Initialize weave tracing (before any OpenAI client is created) ###
-    if args.wandb_project:
+    # Off by default — @weave.op decorators no-op when weave.init is never called.
+    # Pass --enable-weave to opt in (slower, per Weave's per-call serialization cost).
+    if args.enable_weave and args.wandb_project:
         init_weave(args.wandb_project)
 
     ### Initialize dataloader ###
@@ -448,27 +492,109 @@ if __name__ == "__main__":
         pointwise_total_samples=args.pointwise_total_samples,
     )
 
-    ### Initialize evaluation callback ###
+    ### Initialize evaluation callback (parallel / fire-and-forget) ###
+    pending_eval_tasks: list[asyncio.Task] = []
+    eval_log = get_logger("eval")
+
+    async def _run_validation(step: int, sampler_path: str) -> None:
+        try:
+            summary = await run_eval(
+                dataset_path=Path(args.eval_dataset),
+                output_dir=Path(config.log_path) / "evals" / f"step_{step:06d}",
+                base_model=args.base_model,
+                sampler_path=sampler_path,
+                base_url=args.base_url,
+                judge_client=judge_client,
+                judge_models=[args.eval_judge_model or args.judge_model],
+                renderer_name=args.renderer,
+                max_samples=args.eval_max_samples,
+                num_completions=args.eval_num_completions,
+                max_tokens=args.eval_max_tokens,
+                temperature=args.eval_temperature,
+                gen_concurrency=args.eval_gen_concurrency,
+                judge_concurrency=args.eval_judge_concurrency,
+            )
+        except Exception:
+            eval_log.exception(f"Validation at step {step} failed")
+            return
+
+        if wandb.run is None or not summary:
+            return
+
+        eval_metrics: dict[str, Any] = {"eval_step": step}
+        for judge_name, stats in summary.get("judges", {}).items():
+            mean_score = stats.get("mean_score")
+            if mean_score is None:
+                continue
+            safe_name = judge_name.replace("/", "_")
+            eval_metrics[f"eval/{safe_name}/mean_score"] = mean_score
+            eval_metrics[f"eval/{safe_name}/std_score"] = stats.get("std_score", 0.0)
+            eval_metrics[f"eval/{safe_name}/n_errors"] = stats.get("n_errors", 0)
+
+        # Use the dedicated eval_step axis so we can log out-of-order with training steps.
+        wandb.log(eval_metrics)
+        eval_log.info(f"Logged validation metrics for step {step} to wandb")
+
     async def on_checkpoint_save(step: int, _name: str, sampler_path: str) -> None:
         if args.no_eval:
             return
+        # Fire-and-forget: training proceeds to the next step immediately while
+        # validation runs concurrently. Tasks are tracked so we can drain on shutdown.
+        task = asyncio.create_task(_run_validation(step, sampler_path))
+        pending_eval_tasks.append(task)
+        # Periodic best-effort cleanup of completed tasks.
+        pending_eval_tasks[:] = [t for t in pending_eval_tasks if not t.done()]
 
-        await run_eval(
-            dataset_path=Path(args.eval_dataset),
-            output_dir=Path(config.log_path) / "evals" / f"step_{step:06d}",
-            base_model=args.base_model,
-            sampler_path=sampler_path,
-            base_url=args.base_url,
-            judge_client=judge_client,
-            judge_models=[args.eval_judge_model or args.judge_model],
-            renderer_name=args.renderer,
-            max_samples=args.eval_max_samples,
-            num_completions=args.eval_num_completions,
-            max_tokens=args.eval_max_tokens,
-            temperature=args.eval_temperature,
-            gen_concurrency=args.eval_gen_concurrency,
-            judge_concurrency=args.eval_judge_concurrency,
-        )
+    ### Initialize wandb trace Table (incremental — uploads only deltas) ###
+    trace_state: dict[str, Any] = {"table": None, "metrics_defined": False}
+
+    async def extra_metrics_fn(
+        step: int, trajectory_groups: list[TrajectoryGroup]
+    ) -> dict[str, Any]:
+        if wandb.run is None:
+            return {}
+
+        if not trace_state["metrics_defined"]:
+            # Give eval/* its own x-axis so parallel-eval logs (which arrive
+            # out of order vs the main training step counter) plot correctly.
+            wandb.define_metric("eval_step")
+            wandb.define_metric("eval/*", step_metric="eval_step")
+            trace_state["metrics_defined"] = True
+
+        if args.no_trace_table:
+            return {}
+
+        if trace_state["table"] is None:
+            trace_state["table"] = wandb.Table(
+                columns=[
+                    "step",
+                    "worker_id",
+                    "sample_id",
+                    "prompt",
+                    "completion",
+                    "reward",
+                    "judge_calls",
+                ],
+                log_mode="INCREMENTAL",
+            )
+
+        table = trace_state["table"]
+        for tg in trajectory_groups:
+            if tg.completions is None or tg.prompt is None:
+                continue
+            for completion, reward in zip(tg.completions, tg.rewards):
+                table.add_data(
+                    step,
+                    tg.worker_id if tg.worker_id is not None else -1,
+                    tg.sample_id or "",
+                    tg.prompt,
+                    completion,
+                    float(reward),
+                    int(tg.judge_calls),
+                )
+
+        wandb.log({"rollouts": table}, step=step)
+        return {}
 
     ### Run training ###
     asyncio.run(
@@ -482,5 +608,7 @@ if __name__ == "__main__":
             temperature=args.temperature,
             renderer_name=args.renderer,
             on_checkpoint_save=on_checkpoint_save,
+            extra_metrics_fn=extra_metrics_fn,
+            pending_eval_tasks=pending_eval_tasks,
         )
     )
