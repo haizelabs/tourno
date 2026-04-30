@@ -222,21 +222,6 @@ async def main(
     ### Run judge sweep ###
     sweep_results = await sweep_judges(judges, rows, output_dir=output_dir)
 
-    ### Write completions for reproducibility ###
-    completions_path = output_dir / "completions.jsonl"
-    with completions_path.open("w") as f:
-        for sample, completions in zip(samples, completions_per_sample):
-            f.write(
-                json.dumps(
-                    {
-                        "prompt_id": sample.prompt_id,
-                        "prompt": sample.prompt,
-                        "completions": completions,
-                    }
-                )
-                + "\n"
-            )
-
     ### Summarize ###
     summary = summarize(samples, sweep_results, sample_idx_per_row, list(judges))
     summary["config"] = {

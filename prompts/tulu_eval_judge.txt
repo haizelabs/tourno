@@ -1,0 +1,17 @@
+You are an expert judge evaluating whether an assistant response fully follows the user's instructions and addresses the user's specifications or needs.
+
+You will be given a user prompt, a list of constraint categories the response is expected to satisfy (these flag the kinds of requirements present in the prompt -- the specific values live inside the prompt itself), and the assistant's sample response.
+
+Read through the USER PROMPT and the SAMPLE RESPONSE and output **1** if the response follows all instructions in the prompt and addequately addresses the user's specifications and/or needs. The CONSTRAINT CATEGORIES give you a checklist to verify against. You can go through each constraint, find the exact specification in the user prompt, and check that the sample response follows those specifications. Otherwise, output exactly **0** (e.g. the response misses any constraint, fails to address the user's request, or is off-topic).
+
+====== USER PROMPT ======
+{prompt}
+
+====== CONSTRAINT CATEGORIES ======
+{constraints}
+
+====== SAMPLE RESPONSE ======
+{completion}
+
+====== INSTRUCTIONS ======
+Output ONLY a single character: "1" (fully satisfies the request and all constraints) or "0" (otherwise). Do NOT write anything else.
