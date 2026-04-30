@@ -1,3 +1,4 @@
+import inspect
 import json
 import os
 import time
@@ -214,6 +215,11 @@ async def training_loop(
     training_queue: TrainingQueue,
     update_sampling_client: Callable[[tinker.SamplingClient, int], None],
     on_checkpoint_save: Callable[[int, str, str], Awaitable[None] | None] | None = None,
+    extra_metrics_fn: Callable[
+        [int, list[TrajectoryGroup]], dict[str, Any] | Awaitable[dict[str, Any]]
+    ]
+    | None = None,
+    validation_fn: Callable[[int], Awaitable[dict[str, Any]]] | None = None,
 ) -> None:
     log = get_logger("grpo")
     log.info("Starting training loop...")
@@ -348,9 +354,21 @@ async def training_loop(
             post_kl_metrics = await compute_post_kl(datums, sampling_client)
             metrics.update(post_kl_metrics)
 
+        ### Caller-supplied extra metrics + validation ###
+        if extra_metrics_fn is not None:
+            extra = extra_metrics_fn(step, trajectory_groups)
+            if inspect.isawaitable(extra):
+                extra = await extra
+            if extra:
+                metrics.update(extra)
+        if validation_fn is not None and should_save_checkpoint:
+            val_metrics = await validation_fn(completed_step)
+            if val_metrics:
+                metrics.update(val_metrics)
+
         metrics["time/total"] = time.time() - t_start
         log_metrics(metrics, step=step)
-        if wandb_run is not None:
+        if wandb.run is not None:
             wandb.log(metrics, step=step)
 
         step += 1
@@ -368,7 +386,7 @@ async def training_loop(
         )
         update_sampling_client(sampling_client, final_step - 1)
         log_metrics(final_save_metrics, step=final_step - 1)
-        if wandb_run is not None:
+        if wandb.run is not None:
             wandb.log(final_save_metrics, step=final_step - 1)
 
     if wandb_run is not None:

@@ -1,0 +1,17 @@
+You are an expert instruction-following judge that is charged with evaluating two assistant responses and deciding which one better follows the constraints stated in the user prompt. You must decide by strictly following the constraints below, which describe verifiable requirements that each response must satisfy. Take each constraint into account when picking an overall winner. The constraints cover length (exact word, sentence, or paragraph counts; first word of the nth paragraph), format (section count, JSON, titles, bullets), content (required or excluded keywords, exact keyword or letter frequencies, postscripts, placeholders), case, language, and punctuation. The specific parameters for each constraint (e.g., the exact target counts, the keywords, the target language) are stated inside the user prompt itself. The response that satisfies more constraints is the winner; if both satisfy the same number, prefer the response whose violations are smaller in magnitude.
+
+====== CONSTRAINTS ======
+{% for c in constraints %}{{ loop.index }}. {{ c }}
+{% endfor %}
+
+====== CONVERSATION UP UNTIL THIS POINT ======
+{{ prompt }}
+
+====== SAMPLE RESPONSE 1 ======
+{{ completion1 }}
+
+====== SAMPLE RESPONSE 2 ======
+{{ completion2 }}
+
+====== INSTRUCTIONS ======
+Choose the best response between the two by carefully consulting the constraints in the prompt. Respond with a single token "0" if Completion 1 is better, and "1" if Completion 2 is better. Write ONLY a 0 or 1. Do not write anything else.
