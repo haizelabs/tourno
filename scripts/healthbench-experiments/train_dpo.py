@@ -159,9 +159,9 @@ if __name__ == "__main__":
     ### Initialize eval judge client ###
     judge_client: AsyncOpenAI | None = None
     if not args.no_eval and args.eval_judge_model is not None:
-        if os.getenv("OPENAI_API_KEY") is not None:
+        if os.getenv("OPENAI_API_KEY"):
             judge_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        elif os.getenv("OPENROUTER_API_KEY") is not None:
+        elif os.getenv("OPENROUTER_API_KEY"):
             judge_client = AsyncOpenAI(
                 api_key=os.getenv("OPENROUTER_API_KEY"),
                 base_url="https://openrouter.ai/api/v1",

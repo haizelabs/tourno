@@ -3,12 +3,14 @@ import asyncio
 import logging
 import math
 import os
+import time
 from pathlib import Path
 from typing import Awaitable, Callable
 
 import numpy as np
 import tinker
 from data import HealthBenchDataLoader, HealthBenchSample
+from dotenv import load_dotenv
 from eval import (
     main as run_eval,
 )
@@ -34,31 +36,22 @@ from tourno.training.types import (
     TrajectoryTurn,
 )
 
+load_dotenv()
+
 RewardFn = Callable[[HealthBenchSample, list[str], list[str]], Awaitable[tuple[list[float], int]]]
 
 
-def _decode_trajectories(
-    trajectories: list[list[TrajectoryTurn]],
-    renderer: Renderer,
-) -> list[str]:
-    stop_ids: set[int] = set()
+def _stop_token_ids(renderer: Renderer) -> list[int]:
+    ids: set[int] = set()
     for stop in renderer.get_stop_sequences():
         if isinstance(stop, int):
-            stop_ids.add(stop)
+            ids.add(stop)
         elif isinstance(stop, str):
-            ids = renderer.tokenizer.encode(stop)
-            if ids:
-                stop_ids.add(ids[-1])
+            encoded = renderer.tokenizer.encode(stop)
+            if encoded:
+                ids.add(encoded[-1])
 
-    texts: list[str] = []
-    for traj in trajectories:
-        tokens = list(traj[0].ac.tokens)
-        if tokens and tokens[-1] in stop_ids:
-            tokens = tokens[:-1]
-
-        texts.append(renderer.tokenizer.decode(tokens, skip_special_tokens=True))
-
-    return texts
+    return sorted(ids)
 
 
 async def _get_pointwise_rewards(
@@ -115,7 +108,9 @@ def make_get_rewards(
             prompt = serialize_conversation(sample.prompt)
             rubric = serialize_rubric(sample.rubrics)
             pointwise_rewards, pairwise_rewards = await asyncio.gather(
-                _get_pointwise_rewards(sample, completions, point_judge),
+                _get_pointwise_rewards(
+                    sample, completions, point_judge, total_samples=len(completions)
+                ),
                 batched_elo_rewards(prompt, completions, pair_judge, rubric=rubric),
             )
 
@@ -147,6 +142,7 @@ async def rollout(
     log = get_logger(f"worker{worker_id}")
     sampling_client, sampling_client_step = sampling_client_with_step
 
+    t0 = time.time()
     log.debug(f"Sampling {group_size} completions from tinker client...")
     obs = renderer.build_generation_prompt(sample.prompt)
     completions = await sampling_client.sample_async(
@@ -155,11 +151,16 @@ async def rollout(
         sampling_params=tinker.SamplingParams(
             max_tokens=max_tokens,
             temperature=temperature,
+            stop=_stop_token_ids(renderer),
         ),
     )
+    log.debug(f"Sampled {len(completions.sequences)} completions in {time.time() - t0:.2f}s")
 
     trajectories = [[TrajectoryTurn(obs=obs, ac=seq)] for seq in completions.sequences]
-    completion_texts = _decode_trajectories(trajectories, renderer)
+    completion_texts = [
+        renderer.tokenizer.decode(seq.tokens, skip_special_tokens=True)
+        for seq in completions.sequences
+    ]
     rollout_ids = [f"{sample.row_id}_{i}" for i in range(len(completion_texts))]
     rewards, judge_calls = await get_rewards(sample, completion_texts, rollout_ids)
 
@@ -407,9 +408,9 @@ if __name__ == "__main__":
     )
 
     ### Initialize judge client ###
-    if os.getenv("OPENAI_API_KEY") is not None:
+    if os.getenv("OPENAI_API_KEY"):
         judge_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    elif os.getenv("OPENROUTER_API_KEY") is not None:
+    elif os.getenv("OPENROUTER_API_KEY"):
         judge_client = AsyncOpenAI(
             api_key=os.getenv("OPENROUTER_API_KEY"),
             base_url="https://openrouter.ai/api/v1",

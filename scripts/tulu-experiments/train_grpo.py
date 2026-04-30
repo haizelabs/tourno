@@ -8,7 +8,6 @@ from typing import Any, Awaitable, Callable
 
 import numpy as np
 import tinker
-import wandb
 import weave
 from data import TuluDataLoader, TuluSample
 from dotenv import load_dotenv
@@ -22,6 +21,7 @@ from tinker_cookbook.model_info import get_recommended_renderer_name
 from tinker_cookbook.renderers import Renderer, get_renderer
 from tinker_cookbook.tokenizer_utils import get_tokenizer
 
+import wandb
 from tourno.eval.judges import PairwiseJudge, PointwiseJudge
 from tourno.logger import get_logger, init_weave, setup, trace
 from tourno.tournament import adaptive_pointwise_rewards, batched_elo_rewards
@@ -39,28 +39,17 @@ load_dotenv()
 RewardFn = Callable[[TuluSample, list[str], list[str]], Awaitable[tuple[list[float], int]]]
 
 
-def _decode_trajectories(
-    trajectories: list[list[TrajectoryTurn]],
-    renderer: Renderer,
-) -> list[str]:
-    stop_ids: set[int] = set()
+def _stop_token_ids(renderer: Renderer) -> list[int]:
+    ids: set[int] = set()
     for stop in renderer.get_stop_sequences():
         if isinstance(stop, int):
-            stop_ids.add(stop)
+            ids.add(stop)
         elif isinstance(stop, str):
-            ids = renderer.tokenizer.encode(stop)
-            if ids:
-                stop_ids.add(ids[-1])
+            encoded = renderer.tokenizer.encode(stop)
+            if encoded:
+                ids.add(encoded[-1])
 
-    texts: list[str] = []
-    for traj in trajectories:
-        tokens = list(traj[0].ac.tokens)
-        if tokens and tokens[-1] in stop_ids:
-            tokens = tokens[:-1]
-
-        texts.append(renderer.tokenizer.decode(tokens, skip_special_tokens=True))
-
-    return texts
+    return sorted(ids)
 
 
 async def _get_pointwise_rewards(
@@ -157,11 +146,15 @@ async def rollout(
         sampling_params=tinker.SamplingParams(
             max_tokens=max_tokens,
             temperature=temperature,
+            stop=_stop_token_ids(renderer),
         ),
     )
 
     trajectories = [[TrajectoryTurn(obs=obs, ac=seq)] for seq in completions.sequences]
-    completion_texts = _decode_trajectories(trajectories, renderer)
+    completion_texts = [
+        renderer.tokenizer.decode(seq.tokens, skip_special_tokens=True)
+        for seq in completions.sequences
+    ]
     rollout_ids = [f"{sample.id}_{i}" for i in range(len(completion_texts))]
     rewards, judge_calls = await get_rewards(sample, completion_texts, rollout_ids)
 
@@ -193,8 +186,9 @@ async def main(
     temperature: float,
     renderer_name: str | None,
     on_checkpoint_save: Callable[[int, str, str], Awaitable[None] | None] | None = None,
-    extra_metrics_fn: Callable[[int, list[TrajectoryGroup]], Awaitable[dict[str, Any]]]
-    | None = None,
+    extra_metrics_fn: (
+        Callable[[int, list[TrajectoryGroup]], Awaitable[dict[str, Any]]] | None
+    ) = None,
     pending_eval_tasks: list[asyncio.Task] | None = None,
 ):
     ### Setup tokenizer and renderer ###

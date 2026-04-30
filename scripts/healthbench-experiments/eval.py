@@ -38,7 +38,7 @@ def serialize_conversation(prompt: list[dict[str, str]]) -> str:
 
 
 def serialize_rubric(rubric: list[Rubric]) -> str:
-    return "\n".join(f"{i + 1}. {r.criterion} Weight: {r.points}" for i, r in enumerate(rubric))
+    return "\n".join(f"{i + 1}. {r.criterion} | Weight: {r.points}" for i, r in enumerate(rubric))
 
 
 def normalize_score(raw: float, rubrics: list[Rubric]) -> float:
@@ -77,6 +77,7 @@ async def generate_completions(
                 sampling_params=tinker.SamplingParams(
                     max_tokens=max_tokens,
                     temperature=temperature,
+                    stop=sorted(stop_ids),
                 ),
             )
 
@@ -294,9 +295,9 @@ if __name__ == "__main__":
         filter_pattern=args.log_filter,
     )
 
-    if os.getenv("OPENAI_API_KEY") is not None:
+    if os.getenv("OPENAI_API_KEY"):
         judge_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    elif os.getenv("OPENROUTER_API_KEY") is not None:
+    elif os.getenv("OPENROUTER_API_KEY"):
         judge_client = AsyncOpenAI(
             api_key=os.getenv("OPENROUTER_API_KEY"),
             base_url="https://openrouter.ai/api/v1",
