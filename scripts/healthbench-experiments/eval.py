@@ -9,6 +9,7 @@ from statistics import mean, stdev
 import tinker
 from data import HealthBenchSample, Rubric
 from openai import AsyncOpenAI
+from paths import POINTWISE_PROMPT_PATH
 from tinker_cookbook.model_info import get_recommended_renderer_name
 from tinker_cookbook.renderers import Renderer, get_renderer
 from tinker_cookbook.tokenizer_utils import get_tokenizer
@@ -17,9 +18,6 @@ from tourno.eval.core import SweepResult, sweep_judges
 from tourno.eval.judges import PointwiseJudge
 from tourno.logger import get_logger, setup
 from tourno.training.models import get_sampling_client
-
-PROMPTS_DIR = Path(__file__).resolve().parent.parent.parent / "prompts"
-POINTWISE_PROMPT_PATH = PROMPTS_DIR / "healthbench_pointwise_judge.txt"
 
 
 def load_samples(path: Path, max_samples: int | None = None) -> list[HealthBenchSample]:
@@ -281,7 +279,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sampler-path", type=str, default=None)
     parser.add_argument("--base-url", type=str, default=None)
     parser.add_argument("--renderer", type=str, default=None)
-    parser.add_argument("--num-completions", type=int, default=1)
+    parser.add_argument("--num-completions", type=int, default=4)
     parser.add_argument("--max-tokens", type=int, default=1024)
     parser.add_argument("--temperature", type=float, default=0.6)
     parser.add_argument("--gen-concurrency", type=int, default=32)

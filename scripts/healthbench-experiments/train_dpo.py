@@ -2,10 +2,13 @@ import argparse
 import asyncio
 import logging
 import math
+import os
 from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 from data import PreferenceDataLoader
+from eval import main as run_eval
+from openai import AsyncOpenAI
 from tinker import types as tinker_types
 from tinker_cookbook.model_info import get_recommended_renderer_name
 from tinker_cookbook.renderers import Renderer, get_renderer
@@ -86,6 +89,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--log-path", type=str, default="./healthbench-dpo")
     parser.add_argument("--base-url", type=str, default=None)
 
+    ### Evaluation settings ###
+    parser.add_argument("--eval-judge-model", type=str, default=None)
+    parser.add_argument(
+        "--eval-dataset",
+        type=str,
+        default=Path("datasets/healthbench_val.jsonl").as_posix(),
+    )
+    parser.add_argument("--eval-max-samples", type=int, default=64)
+    parser.add_argument("--eval-max-tokens", type=int, default=1024)
+    parser.add_argument("--eval-temperature", type=float, default=0.6)
+    parser.add_argument("--eval-gen-concurrency", type=int, default=32)
+    parser.add_argument("--eval-judge-concurrency", type=int, default=128)
+    parser.add_argument("--eval-num-completions", type=int, default=4)
+    parser.add_argument("--no-eval", action="store_true")
+
     return parser.parse_args()
 
 
@@ -138,10 +156,41 @@ if __name__ == "__main__":
         wandb_project=args.wandb_project,
     )
 
+    ### Initialize eval judge client ###
+    judge_client: AsyncOpenAI | None = None
+    if not args.no_eval and args.eval_judge_model is not None:
+        if os.getenv("OPENAI_API_KEY") is not None:
+            judge_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        elif os.getenv("OPENROUTER_API_KEY") is not None:
+            judge_client = AsyncOpenAI(
+                api_key=os.getenv("OPENROUTER_API_KEY"),
+                base_url="https://openrouter.ai/api/v1",
+            )
+        else:
+            raise ValueError("No LLM Provider API key found")
+
     ### Initialize evaluation callback ###
     async def on_checkpoint_save(step: int, _name: str, sampler_path: str) -> None:
-        print("hello world")
-        ...
+        if args.no_eval or args.eval_judge_model is None:
+            return
+
+        assert judge_client is not None
+        await run_eval(
+            dataset_path=Path(args.eval_dataset),
+            output_dir=Path(config.log_path) / "evals" / f"step_{step:06d}",
+            base_model=args.base_model,
+            sampler_path=sampler_path,
+            base_url=args.base_url,
+            judge_client=judge_client,
+            judge_models=[args.eval_judge_model],
+            renderer_name=args.renderer,
+            max_samples=args.eval_max_samples,
+            num_completions=args.eval_num_completions,
+            max_tokens=args.eval_max_tokens,
+            temperature=args.eval_temperature,
+            gen_concurrency=args.eval_gen_concurrency,
+            judge_concurrency=args.eval_judge_concurrency,
+        )
 
     ### Run training: render PreferenceSample batches into DPOPair batches on the fly ###
     train_data = to_dpo_pair_batches(dataloader, renderer)

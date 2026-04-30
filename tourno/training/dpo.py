@@ -1,9 +1,10 @@
 import asyncio
+import inspect
 import json
 import os
 import time
 from collections.abc import Awaitable, Callable, Sequence
-from typing import Iterable
+from typing import Any, Iterable
 
 import numpy as np
 import tinker
@@ -211,6 +212,10 @@ async def training_loop(
     config: DPOConfig,
     train_data: Iterable[tuple[int, Sequence[DPOPair]]],
     on_checkpoint_save: Callable[[int, str, str], Awaitable[None] | None] | None = None,
+    extra_metrics_fn: (
+        Callable[[int, Sequence[DPOPair]], dict[str, Any] | Awaitable[dict[str, Any]]] | None
+    ) = None,
+    validation_fn: Callable[[int], Awaitable[dict[str, Any]]] | None = None,
 ) -> None:
     log = get_logger("dpo")
     log.info("Starting DPO training...")
@@ -276,7 +281,10 @@ async def training_loop(
 
         ### Save checkpoint and log to wandb ###
         completed_step = step + 1
-        if config.save_every > 0 and completed_step > 0 and completed_step % config.save_every == 0:
+        should_save = (
+            config.save_every > 0 and completed_step > 0 and completed_step % config.save_every == 0
+        )
+        if should_save:
             _, checkpoint_metrics = await save_checkpoint_and_get_sampling_client(
                 training_client,
                 completed_step,
@@ -286,6 +294,18 @@ async def training_loop(
             )
 
             metrics.update(checkpoint_metrics)
+
+        ### Caller-supplied extra metrics + validation ###
+        if extra_metrics_fn is not None:
+            extra = extra_metrics_fn(step, batch)
+            if inspect.isawaitable(extra):
+                extra = await extra
+            if extra:
+                metrics.update(extra)
+        if validation_fn is not None and should_save:
+            val_metrics = await validation_fn(completed_step)
+            if val_metrics:
+                metrics.update(val_metrics)
 
         metrics["time/total"] = time.time() - t_start
         log_metrics(metrics, step=step)

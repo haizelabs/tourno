@@ -6,14 +6,26 @@ import os
 from pathlib import Path
 from typing import Awaitable, Callable
 
+import numpy as np
 import tinker
 from data import HealthBenchDataLoader, HealthBenchSample
+from eval import (
+    main as run_eval,
+)
+from eval import (
+    normalize_score,
+    serialize_conversation,
+    serialize_rubric,
+)
 from openai import AsyncOpenAI
+from paths import PAIRWISE_PROMPT_PATH, POINTWISE_PROMPT_PATH
 from tinker_cookbook.model_info import get_recommended_renderer_name
 from tinker_cookbook.renderers import Renderer, get_renderer
 from tinker_cookbook.tokenizer_utils import get_tokenizer
 
+from tourno.eval.judges import PairwiseJudge, PointwiseJudge
 from tourno.logger import get_logger, setup, trace
+from tourno.tournament import adaptive_pointwise_rewards, batched_elo_rewards
 from tourno.training.grpo import training_loop
 from tourno.training.types import (
     GRPOConfig,
@@ -22,7 +34,7 @@ from tourno.training.types import (
     TrajectoryTurn,
 )
 
-DATASETS_DIR = Path("datasets")
+RewardFn = Callable[[HealthBenchSample, list[str], list[str]], Awaitable[tuple[list[float], int]]]
 
 
 def _decode_trajectories(
@@ -49,6 +61,76 @@ def _decode_trajectories(
     return texts
 
 
+async def _get_pointwise_rewards(
+    sample: HealthBenchSample,
+    completions: list[str],
+    judge: PointwiseJudge,
+    total_samples: int,
+) -> list[float]:
+    prompt = serialize_conversation(sample.prompt)
+    rubric = serialize_rubric(sample.rubrics)
+    raw_rewards = await adaptive_pointwise_rewards(
+        prompt,
+        completions,
+        judge,
+        total_samples=total_samples,
+        rubric=rubric,
+    )
+
+    return [normalize_score(r, sample.rubrics) for r in raw_rewards]
+
+
+def make_get_rewards(
+    *,
+    judge_type: str,
+    judge_client: AsyncOpenAI,
+    judge_model: str,
+    pairwise_alpha: float,
+    pointwise_total_samples: int | None = None,
+) -> RewardFn:
+    if judge_type == "pointwise":
+        judge = PointwiseJudge(judge_client, judge_model, POINTWISE_PROMPT_PATH.read_text())
+
+        async def pointwise(
+            sample: HealthBenchSample, completions: list[str], _rollout_ids: list[str]
+        ) -> tuple[list[float], int]:
+            total_samples = pointwise_total_samples or len(completions)
+            rewards = await _get_pointwise_rewards(
+                sample=sample,
+                completions=completions,
+                judge=judge,
+                total_samples=total_samples,
+            )
+            return rewards, -1
+
+        return pointwise
+
+    elif judge_type == "tourno":
+        point_judge = PointwiseJudge(judge_client, judge_model, POINTWISE_PROMPT_PATH.read_text())
+        pair_judge = PairwiseJudge(judge_client, judge_model, PAIRWISE_PROMPT_PATH.read_text())
+
+        async def tourno(
+            sample: HealthBenchSample, completions: list[str], _rollout_ids: list[str]
+        ) -> tuple[list[float], int]:
+            prompt = serialize_conversation(sample.prompt)
+            rubric = serialize_rubric(sample.rubrics)
+            pointwise_rewards, pairwise_rewards = await asyncio.gather(
+                _get_pointwise_rewards(sample, completions, point_judge),
+                batched_elo_rewards(prompt, completions, pair_judge, rubric=rubric),
+            )
+
+            pointwise_arr = np.array(pointwise_rewards)
+            pairwise_arr = np.array(pairwise_rewards)
+            decay_coeff = np.exp(-pairwise_alpha * pointwise_arr.mean())
+            mixed_rewards = pointwise_arr + decay_coeff * pairwise_arr
+
+            return mixed_rewards.tolist(), -1
+
+        return tourno
+
+    raise ValueError(f"Invalid judge type: {judge_type}")
+
+
 @trace
 async def rollout(
     worker_id: int,
@@ -57,9 +139,7 @@ async def rollout(
     sampling_client_with_step: tuple[tinker.SamplingClient, int],
     training_queue: TrainingQueue,
     *,
-    get_rewards: Callable[
-        [HealthBenchSample, list[str], list[str]], Awaitable[tuple[list[float], int]]
-    ],
+    get_rewards: RewardFn,
     group_size: int,
     max_tokens: int,
     temperature: float,
@@ -99,9 +179,7 @@ async def rollout(
 @trace
 async def main(
     config: GRPOConfig,
-    get_rewards: Callable[
-        [HealthBenchSample, list[str], list[str]], Awaitable[tuple[list[float], int]]
-    ],
+    get_rewards: RewardFn,
     dataloader: HealthBenchDataLoader,
     num_workers: int,
     group_size: int,
@@ -207,11 +285,24 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--judge-type",
         type=str,
-        choices=["pairwise", "pointwise", "mixture"],
+        choices=["pointwise", "tourno"],
         default="pointwise",
     )
     parser.add_argument("--judge-model", type=str, default="gpt-4.1-2025-04-14")
     parser.add_argument("--pairwise-alpha", type=float, default=0.5)
+    parser.add_argument(
+        "--pointwise-total-samples",
+        type=int,
+        default=None,
+        help=(
+            "Total pointwise judge calls per group (distributed adaptively across "
+            "completions: each gets one sample, then the remaining budget is allocated "
+            "by triangular rank weights, so middle-ranked completions are sampled more "
+            "than the confidently-top/bottom ones). Defaults to --group-size (one sample "
+            "per completion). Set higher (e.g. ~n*log2(n)) to match the per-group judge "
+            "compute of --judge-type tourno."
+        ),
+    )
 
     ### Logging settings ###
     parser.add_argument("--log-level", type=str, default="INFO")
@@ -252,12 +343,14 @@ def parse_args() -> argparse.Namespace:
     ### Evaluation settings ###
     parser.add_argument("--eval-judge-model", type=str, default=None)
     parser.add_argument(
-        "--eval-dataset", type=str, default=(DATASETS_DIR / "healthbench_val.jsonl").as_posix()
+        "--eval-dataset", type=str, default=Path("datasets/healthbench_val.jsonl").as_posix()
     )
     parser.add_argument("--eval-max-samples", type=int, default=64)
     parser.add_argument("--eval-max-tokens", type=int, default=1024)
+    parser.add_argument("--eval-temperature", type=float, default=0.6)
     parser.add_argument("--eval-gen-concurrency", type=int, default=32)
-    parser.add_argument("--eval-num-completions", type=int, default=1)
+    parser.add_argument("--eval-judge-concurrency", type=int, default=128)
+    parser.add_argument("--eval-num-completions", type=int, default=4)
     parser.add_argument("--no-eval", action="store_true")
 
     return parser.parse_args()
@@ -282,8 +375,14 @@ if __name__ == "__main__":
     run_prefix = "healthbench-grpo"
     model_short = args.base_model.split("/")[-1]
     name = f"{model_short}_lr{args.learning_rate}_bs{args.batch_size}_lora{args.lora_rank}_{args.judge_type}_judge{args.judge_model}"
-    if args.judge_type == "mixture" and args.pairwise_alpha > 0:
+    if args.judge_type == "tourno" and args.pairwise_alpha > 0:
         name += f"_alpha{args.pairwise_alpha}"
+    if (
+        args.judge_type == "pointwise"
+        and args.pointwise_total_samples is not None
+        and args.pointwise_total_samples > args.group_size
+    ):
+        name += f"_judge-n{args.pointwise_total_samples}"
 
     config = GRPOConfig(
         base_model=args.base_model,
@@ -319,12 +418,35 @@ if __name__ == "__main__":
         raise ValueError("No LLM Provider API key found")
 
     ### Initialize get_rewards function ###
-    get_rewards = ...
+    get_rewards = make_get_rewards(
+        judge_type=args.judge_type,
+        judge_client=judge_client,
+        judge_model=args.judge_model,
+        pairwise_alpha=args.pairwise_alpha,
+        pointwise_total_samples=args.pointwise_total_samples,
+    )
 
     ### Initialize evaluation callback ###
     async def on_checkpoint_save(step: int, _name: str, sampler_path: str) -> None:
-        print("hello world")
-        ...
+        if args.no_eval:
+            return
+
+        await run_eval(
+            dataset_path=Path(args.eval_dataset),
+            output_dir=Path(config.log_path) / "evals" / f"step_{step:06d}",
+            base_model=args.base_model,
+            sampler_path=sampler_path,
+            base_url=args.base_url,
+            judge_client=judge_client,
+            judge_models=[args.eval_judge_model or args.judge_model],
+            renderer_name=args.renderer,
+            max_samples=args.eval_max_samples,
+            num_completions=args.eval_num_completions,
+            max_tokens=args.eval_max_tokens,
+            temperature=args.eval_temperature,
+            gen_concurrency=args.eval_gen_concurrency,
+            judge_concurrency=args.eval_judge_concurrency,
+        )
 
     ### Run training ###
     asyncio.run(

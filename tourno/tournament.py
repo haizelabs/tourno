@@ -1,25 +1,53 @@
+import asyncio
 import hashlib
-from collections.abc import Awaitable, Iterator
-from typing import Callable
+from collections.abc import Iterator
+from typing import Any
 
 import numpy as np
 
-from tourno.types import (
-    PairwiseComparison,
-    PairwiseJudge,
-)
+from tourno.eval.judges import PairwiseJudge, PointwiseJudge
 
 MIN_SIMILARITY_WEIGHT = 0.25
 DISTANCE_WEIGHT_POWER = 1.0
 
 
-### Pointwise Reward ###
-async def pointwise_reward_fn(
+async def adaptive_pointwise_rewards(
     prompt: str,
     completions: list[str],
-    reward_fn: Callable[[str, list[str]], Awaitable[list[float]]],
+    judge: PointwiseJudge,
+    *,
+    total_samples: int,
+    seed: int = 42,
+    **template_kwargs: Any,
 ) -> list[float]:
-    return await reward_fn(prompt, completions)
+    n = len(completions)
+    assert n >= 1 and total_samples >= n
+
+    phase1 = await asyncio.gather(
+        *(judge(prompt=prompt, completion=c, **template_kwargs) for c in completions)
+    )
+    sums = np.array(phase1, dtype=float)
+    total_counts = np.ones(n, dtype=int)
+    rng = np.random.default_rng(seed)
+
+    remaining = total_samples - n
+    while remaining > 0:
+        ranks = np.argsort(np.argsort(sums)) + 1
+        weights = (ranks * (n + 1 - ranks)).astype(float) / (total_counts * (total_counts + 1))
+
+        batch_size = min(n // 2, remaining)  # TODO: This is a pretty arbitray batch size
+        selected = rng.choice(n, size=batch_size, p=weights / weights.sum(), replace=True).tolist()
+        results = await asyncio.gather(
+            *(judge(prompt=prompt, completion=completions[i], **template_kwargs) for i in selected)
+        )
+
+        for i, score in zip(selected, results):
+            sums[i] += score
+            total_counts[i] += 1
+
+        remaining -= batch_size
+
+    return (sums / total_counts).tolist()
 
 
 def _should_swap_stable(prompt: str, completion_a: str, completion_b: str) -> bool:
@@ -31,67 +59,71 @@ def _should_swap_stable(prompt: str, completion_a: str, completion_b: str) -> bo
         return True
 
 
-### Pairwise Round Robin ###
-async def compute_round_robin_wins(
-    prompt: str, completions: list[str], judge_fn: PairwiseJudge
+async def _compute_round_robin_wins(
+    prompt: str,
+    completions: list[str],
+    judge: PairwiseJudge,
+    **template_kwargs: Any,
 ) -> np.ndarray:
     n = len(completions)
-    judge_inputs: list[PairwiseComparison] = []
+    judge_inputs: list[tuple[str, str]] = []
     index_pairs: list[tuple[int, int, bool]] = []
 
     for i in range(n):
         for j in range(i + 1, n):
             swap = _should_swap_stable(prompt, completions[i], completions[j])
             if swap:
-                judge_inputs.append(
-                    {
-                        "prompt": prompt,
-                        "completion1": completions[j],
-                        "completion2": completions[i],
-                    }
-                )
+                judge_inputs.append((completions[j], completions[i]))
             else:
-                judge_inputs.append(
-                    {
-                        "prompt": prompt,
-                        "completion1": completions[i],
-                        "completion2": completions[j],
-                    }
-                )
+                judge_inputs.append((completions[i], completions[j]))
 
             index_pairs.append((i, j, swap))
 
-    judge_outputs = await judge_fn(judge_inputs)
+    judge_outputs = await asyncio.gather(
+        *(
+            judge(
+                prompt=prompt,
+                completion_a=completion_a,
+                completion_b=completion_b,
+                **template_kwargs,
+            )
+            for completion_a, completion_b in judge_inputs
+        )
+    )
     wins = np.zeros((n, n))
     for idx, (i, j, swapped) in enumerate(index_pairs):
-        completion1_won = int(judge_outputs[idx] > 0.5)
+        a_won = 1.0 - judge_outputs[idx]
         if swapped:
-            wins[j, i] += completion1_won
-            wins[i, j] += 1 - completion1_won
+            wins[j, i] += a_won
+            wins[i, j] += 1.0 - a_won
         else:
-            wins[j, i] += 1 - completion1_won
-            wins[i, j] += completion1_won
+            wins[i, j] += a_won
+            wins[j, i] += 1.0 - a_won
 
     return wins
 
 
-async def round_robin_reward_fn(
-    prompt: str, completions: list[str], judge_fn: PairwiseJudge
+async def round_robin_rewards(
+    prompt: str,
+    completions: list[str],
+    judge: PairwiseJudge,
+    **template_kwargs: Any,
 ) -> list[float]:
     n = len(completions)
-    wins = await compute_round_robin_wins(prompt, completions, judge_fn)
+    wins = await _compute_round_robin_wins(prompt, completions, judge, **template_kwargs)
     win_rates: np.ndarray = wins.sum(axis=1) / (n - 1)
 
     return win_rates.tolist()
 
 
-async def weighted_round_robin_reward_fn(
+async def weighted_round_robin_rewards(
     prompt: str,
     completions: list[str],
-    judge_fn: PairwiseJudge,
+    judge: PairwiseJudge,
     *,
     min_similarity_weight: float = MIN_SIMILARITY_WEIGHT,
     distance_weight_power: float = DISTANCE_WEIGHT_POWER,
+    **template_kwargs: Any,
 ) -> list[float]:
     """
     Two-pass scoring:
@@ -101,7 +133,7 @@ async def weighted_round_robin_reward_fn(
        - different-performance opponents are upweighted
     """
     n = len(completions)
-    wins = await compute_round_robin_wins(prompt, completions, judge_fn)
+    wins = await _compute_round_robin_wins(prompt, completions, judge, **template_kwargs)
     baseline_win_rates: np.ndarray = wins.sum(axis=1) / (n - 1)
 
     performance_distance = np.abs(
@@ -123,7 +155,6 @@ async def weighted_round_robin_reward_fn(
     return (weighted_wins / total_weights).tolist()
 
 
-### Batched ELO ###
 def _sample_matches(
     elo: np.ndarray,
     match_counts: np.ndarray,
@@ -152,16 +183,17 @@ def _sample_matches(
             yield (int(pair_i[idx]), int(pair_j[idx]))
 
 
-async def batched_elo_reward_fn(
+async def batched_elo_rewards(
     prompt: str,
     completions: list[str],
-    judge_fn: PairwiseJudge,
+    judge: PairwiseJudge,
     *,
     k: float = 32.0,
     convergence_threshold: float = 8.0,
     convergence_patience: int = 3,
     seed: int = 42,
-) -> tuple[list[float], int]:
+    **template_kwargs: Any,
+) -> list[float]:
     assert len(completions) > 1
 
     rng = np.random.default_rng(seed)
@@ -173,7 +205,6 @@ async def batched_elo_reward_fn(
     elo = np.zeros(n)
     match_counts = np.zeros((n, n), dtype=int)
     converged_rounds = 0
-    total_judge_calls = 0
 
     for _ in range(max_iters):
         elo_prev = elo.copy()
@@ -188,15 +219,20 @@ async def batched_elo_reward_fn(
             )
         )
 
-        judge_inputs: list[PairwiseComparison] = [
-            {"prompt": prompt, "completion1": completions[a], "completion2": completions[b]}
-            for a, b in matches
-        ]
-        judge_outputs = await judge_fn(judge_inputs)
-        total_judge_calls += len(judge_inputs)
+        judge_outputs = await asyncio.gather(
+            *(
+                judge(
+                    prompt=prompt,
+                    completion_a=completions[a],
+                    completion_b=completions[b],
+                    **template_kwargs,
+                )
+                for a, b in matches
+            )
+        )
 
         for idx, (a, b) in enumerate(matches):
-            a_won = int(judge_outputs[idx] > 0.5)
+            a_won = 1.0 - judge_outputs[idx]
             expected_a = 1.0 / (1.0 + 10.0 ** ((elo[b] - elo[a]) / 400.0))
             elo[a] += k * (a_won - expected_a)
             elo[b] -= k * (a_won - expected_a)
@@ -211,4 +247,4 @@ async def batched_elo_reward_fn(
                 break
 
     elo_range = max(elo.max() - elo.min(), 1e-4)
-    return ((elo - elo.min()) / elo_range).tolist(), total_judge_calls
+    return ((elo - elo.min()) / elo_range).tolist()

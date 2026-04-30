@@ -146,6 +146,17 @@ class PointwiseJudge(Judge):
 
 
 class PairwiseJudge(Judge):
+    def parse_output(self, inputs: dict, content: str, reasoning: str | None) -> float:
+        text = content.strip().lower()
+        if text in ("a", "b"):
+            return 0.0 if text == "a" else 1.0
+
+        matches = re.findall(r"\b[ab]\b", text)
+        if matches:
+            return 0.0 if matches[-1] == "a" else 1.0
+
+        raise ValueError(f"Could not parse pairwise choice (expected 'a' or 'b') from: {content!r}")
+
     @trace
     @_pairwise_retry
     async def __call__(
@@ -180,6 +191,7 @@ class PairwiseJudge(Judge):
             "completion_b": completion_b,
             **template_kwargs,
         }
+
         assert content is not None
 
         return self.parse_output(inputs, content, reasoning)

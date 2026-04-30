@@ -6,11 +6,11 @@ You are an expert biomedical judge that is charged with evaluating two assistant
 ====== CONVERSATION UP UNTIL THIS POINT ======
 {prompt}
 
-====== SAMPLE RESPONSE 1 ======
-{completion1}
+====== SAMPLE RESPONSE A ======
+{completion_a}
 
-====== SAMPLE RESPONSE 2 ======
-{completion2}
+====== SAMPLE RESPONSE B ======
+{completion_b}
 
 ====== INSTRUCTIONS ======
-Choose the best response between the two by carefully consulting the rubric in the prompt. Respond with a single token "0" if Completion 1 is better, and "1" if Completion 2 is better. Write ONLY a 0 or 1. Do not write anything else.
+Choose the best response between the two by carefully consulting the rubric in the prompt. Respond with a single token "A" if Response A is better, and "B" if Response B is better. Write ONLY an A or B. Do not write anything else.
