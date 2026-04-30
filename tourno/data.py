@@ -14,7 +14,7 @@ class DataLoader(Generic[SampleT]):
     def __init__(
         self,
         dataset_path: str,
-        sample_model: type[SampleT] | None = None,
+        sample_model: type[SampleT],
         *,
         batch_size: int = 1,
         max_length: int | None = None,
@@ -45,21 +45,23 @@ class DataLoader(Generic[SampleT]):
         self.num_rows = len(self._curr_dataset)
         self._set_dataset_to_epoch(self.curr_epoch)
 
+        self._row_id_counter = 0
+
     def __aiter__(self):
         return self
 
     def __iter__(self):
         return self
 
-    def __next__(self) -> tuple[int, list[SampleT | dict[str, Any]]]:
+    def __next__(self) -> tuple[int, list[SampleT]]:
         with self._sync_iter_lock:
             return self._next_batch()
 
-    async def __anext__(self) -> tuple[int, list[SampleT | dict[str, Any]]]:
+    async def __anext__(self) -> tuple[int, list[SampleT]]:
         async with self._iter_lock:
             return self._next_batch()
 
-    def _next_batch(self) -> tuple[int, list[SampleT | dict[str, Any]]]:
+    def _next_batch(self) -> tuple[int, list[SampleT]]:
         remaining = self.num_rows - self.curr_epoch_step
         n = min(self.batch_size, remaining)
         if n == 0:
@@ -72,10 +74,16 @@ class DataLoader(Generic[SampleT]):
         self.curr_epoch_step += n
 
         batch = [{k: rows[k][i] for k in rows} for i in range(n)]
-        if self.sample_model is not None:
-            return self.curr_epoch, [self.sample_model.model_validate(row) for row in batch]
+        samples: list[SampleT] = []
+        for row in batch:
+            sample = self.sample_model.model_validate(row)
+            if "row_id" not in self.sample_model.model_fields:
+                sample.row_id = self._row_id_counter
 
-        return self.curr_epoch, batch
+            self._row_id_counter += 1
+            samples.append(sample)
+
+        return self.curr_epoch, samples
 
     def _load_dataset(self, dataset_path: str, *, split: str | None, **kwargs: Any) -> Dataset:
         path = Path(dataset_path)

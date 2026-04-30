@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import logging
+import math
 import os
 import sys
 from pathlib import Path
@@ -30,17 +31,22 @@ from dotenv import load_dotenv
 from openai import AsyncOpenAI
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from eval_common import (
+import eval as healthbench_eval
+from eval import (
     DATASETS_DIR,
     HEALTHBENCH_DIR,
-    EvalPipeline,
+    POINTWISE_PROMPT,
     ResultCache,
     bootstrap_se,
     discover_run,
+    evaluate_checkpoint,
     get_available_steps,
+    get_base_model,
+    get_sampler_path,
     load_samples,
 )
-from judges import HealthBenchPointwiseJudge
+
+from tourno.eval.judges import PointwiseJudge
 
 load_dotenv()
 log = logging.getLogger(__name__)
@@ -280,11 +286,52 @@ def plot_bar_chart(
 # ---------------------------------------------------------------------------
 
 
-async def run(args: argparse.Namespace) -> None:
-    import eval_common
+async def evaluate_missing_pairs(
+    *,
+    cache: ResultCache,
+    samples: list,
+    prompt_ids: set[str],
+    pairs: list[tuple[str, int]],
+    judge: PointwiseJudge,
+    service,
+    args: argparse.Namespace,
+) -> None:
+    for run_name, step in pairs:
+        cached = cache.get_scores(run_name, step, prompt_ids)
+        missing = [sample for sample in samples if sample.prompt_id not in cached]
+        if not missing:
+            continue
+        log.info(f"{run_name} step {step}: {len(cached)} cached, {len(missing)} to evaluate")
+        results = await evaluate_checkpoint(
+            missing,
+            sampler_path=None if step == 0 else get_sampler_path(run_name, step),
+            base_model=get_base_model(run_name),
+            judge=judge,
+            service=service,
+            num_completions=args.num_completions,
+            max_tokens=args.max_tokens,
+            temperature=args.temperature,
+            gen_concurrency=args.gen_concurrency,
+        )
+        for result in results:
+            if math.isnan(result.mean_normalized):
+                continue
+            cache.put(
+                result.sample.prompt_id,
+                run_name,
+                step,
+                {
+                    "completions": result.completions,
+                    "raw_scores": result.raw_scores,
+                    "normalized_scores": result.normalized_scores,
+                    "normalized_score": result.mean_normalized,
+                },
+            )
 
+
+async def run(args: argparse.Namespace) -> None:
     if args.healthbench_dir:
-        eval_common.HEALTHBENCH_DIR = Path(args.healthbench_dir).resolve()
+        healthbench_eval.HEALTHBENCH_DIR = Path(args.healthbench_dir).resolve()
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -320,7 +367,11 @@ async def run(args: argparse.Namespace) -> None:
             api_key=os.environ["OPENROUTER_API_KEY"],
             base_url="https://openrouter.ai/api/v1",
         )
-        judge_inst = HealthBenchPointwiseJudge(client=judge_client, model=args.eval_judge_model)
+        judge_inst = PointwiseJudge(
+            client=judge_client,
+            model=args.eval_judge_model,
+            judge_template=POINTWISE_PROMPT,
+        )
         service = tinker.ServiceClient(base_url=args.base_url)
 
         # --- Phase 1: evaluate all candidate steps on VAL only ---
@@ -345,19 +396,15 @@ async def run(args: argparse.Namespace) -> None:
                 f"Phase 1 (val): {len(val_needed)} (model, step) pairs need evaluation "
                 f"({len(val_samples)} samples each)"
             )
-            val_pipeline = EvalPipeline(
-                samples=val_samples,
-                judge=judge_inst,
+            await evaluate_missing_pairs(
                 cache=cache,
+                samples=val_samples,
+                prompt_ids=val_prompt_ids,
+                pairs=val_needed,
+                judge=judge_inst,
                 service=service,
-                max_tokens=args.max_tokens,
-                temperature=args.temperature,
-                gen_concurrency=args.gen_concurrency,
-                judge_concurrency=args.judge_concurrency,
+                args=args,
             )
-            val_models = list({r for r, _ in val_needed})
-            val_steps = sorted({s for _, s in val_needed})
-            await val_pipeline.run(val_models, val_steps)
 
         # --- Phase 2: pick best step per run, evaluate only that on TEST ---
         test_needed_runs: list[tuple[str, int]] = []
@@ -382,19 +429,15 @@ async def run(args: argparse.Namespace) -> None:
                 f"Phase 2 (test): {len(test_needed_runs)} (model, step) pairs need evaluation "
                 f"({len(test_samples)} samples each)"
             )
-            test_pipeline = EvalPipeline(
-                samples=test_samples,
-                judge=judge_inst,
+            await evaluate_missing_pairs(
                 cache=cache,
+                samples=test_samples,
+                prompt_ids=test_prompt_ids,
+                pairs=test_needed_runs,
+                judge=judge_inst,
                 service=service,
-                max_tokens=args.max_tokens,
-                temperature=args.temperature,
-                gen_concurrency=args.gen_concurrency,
-                judge_concurrency=args.judge_concurrency,
+                args=args,
             )
-            test_models = list({r for r, _ in test_needed_runs})
-            test_steps = sorted({s for _, s in test_needed_runs})
-            await test_pipeline.run(test_models, test_steps)
 
     bar_data, meta = collect_bar_data(
         cache=cache,
@@ -428,6 +471,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--n-bootstrap", type=int, default=1000)
     p.add_argument("--max-tokens", type=int, default=4096)
     p.add_argument("--temperature", type=float, default=1.0)
+    p.add_argument("--num-completions", type=int, default=1)
     p.add_argument("--gen-concurrency", type=int, default=32)
     p.add_argument("--judge-concurrency", type=int, default=128)
     p.add_argument("--base-url", type=str, default=None)

@@ -18,9 +18,15 @@ class TrajectoryGroup(pydantic.BaseModel):
     judge_calls: int = 0
 
 
+class PreferenceSample(pydantic.BaseModel):
+    prompt: list[dict[str, str]]
+    chosen: str
+    rejected: str
+    row_id: int | None = None
+
+
 class DPOPair(pydantic.BaseModel):
     model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
-
     obs: tinker_types.ModelInput
     chosen: tinker_types.SampledSequence
     rejected: tinker_types.SampledSequence
@@ -42,7 +48,6 @@ class GRPOConfig(pydantic.BaseModel):
     batch_size: int = 8
     group_size: int = 8
     num_substeps: int = 1
-    pairwise_alpha: float = 0.0
     loss_fn: str = "importance_sampling"
     loss_fn_config: dict[str, Any] | None = None
     kl_coef: float = 0.0
@@ -53,22 +58,10 @@ class GRPOConfig(pydantic.BaseModel):
     resume_optimizer: bool = False
 
     save_every: int = 20
-    log_path: str = "/tmp/swebench-rl"
+    log_path: str = "./grpo-results"
+    run_name: str | None = None
     ttl_seconds: int | None = 604800
     wandb_project: str | None = None
-    docent_collection: str | None = None
-
-    @property
-    def run_name(self) -> str:
-        model_short = self.base_model.split("/")[-1]
-        name = f"{model_short}_lr{self.learning_rate}_bs{self.batch_size}_lora{self.lora_rank}_{self.judge_type}_judge{self.judge_model}"
-        if self.pairwise_alpha > 0:
-            name += f"_alpha{self.pairwise_alpha}"
-        name += f"_{self.loss_fn}"
-        if self.kl_coef > 0:
-            name += f"_kl{self.kl_coef}"
-
-        return name
 
 
 class DPOConfig(pydantic.BaseModel):
@@ -89,15 +82,10 @@ class DPOConfig(pydantic.BaseModel):
     n_steps: int = 100
 
     save_every: int = 20
-    log_path: str = "/tmp/dpo"
+    log_path: str = "./dpo-results"
+    run_name: str | None = None
     ttl_seconds: int | None = 604800
     wandb_project: str | None = None
-
-    @property
-    def run_name(self) -> str:
-        model_short = self.base_model.split("/")[-1]
-        name = f"{model_short}_lr{self.learning_rate}_bs{self.batch_size}_lora{self.lora_rank}_dpo_beta{self.beta}"
-        return name
 
 
 TrainingQueue = asyncio.Queue[tuple[int, TrajectoryGroup]]

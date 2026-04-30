@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import logging
+import math
 import os
 import sys
 from pathlib import Path
@@ -31,15 +32,20 @@ from dotenv import load_dotenv
 from openai import AsyncOpenAI
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from eval_common import (
+import eval as healthbench_eval
+from eval import (
     DATASETS_DIR,
-    EvalPipeline,
+    POINTWISE_PROMPT,
     ResultCache,
     discover_run,
+    evaluate_checkpoint,
     get_available_steps,
+    get_base_model,
+    get_sampler_path,
     load_samples,
 )
-from judges import HealthBenchPointwiseJudge
+
+from tourno.eval.judges import PointwiseJudge
 
 load_dotenv()
 log = logging.getLogger(__name__)
@@ -206,10 +212,8 @@ def plot_line_chart_side_by_side(
 
 
 async def run(args: argparse.Namespace) -> None:
-    import eval_common
-
     if args.healthbench_dir:
-        eval_common.HEALTHBENCH_DIR = Path(args.healthbench_dir).resolve()
+        healthbench_eval.HEALTHBENCH_DIR = Path(args.healthbench_dir).resolve()
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -241,7 +245,11 @@ async def run(args: argparse.Namespace) -> None:
             api_key=os.environ["OPENROUTER_API_KEY"],
             base_url="https://openrouter.ai/api/v1",
         )
-        judge_inst = HealthBenchPointwiseJudge(client=judge_client, model=args.eval_judge_model)
+        judge_inst = PointwiseJudge(
+            client=judge_client,
+            model=args.eval_judge_model,
+            judge_template=POINTWISE_PROMPT,
+        )
         service = tinker.ServiceClient(base_url=args.base_url)
 
         run_steps: dict[str, list[int]] = {}
@@ -261,19 +269,39 @@ async def run(args: argparse.Namespace) -> None:
             log.info(
                 f"{len(needed)} (model, step) pairs need evaluation ({len(samples)} samples each)"
             )
-            pipeline = EvalPipeline(
-                samples=samples,
-                judge=judge_inst,
-                cache=cache,
-                service=service,
-                max_tokens=args.max_tokens,
-                temperature=args.temperature,
-                gen_concurrency=args.gen_concurrency,
-                judge_concurrency=args.judge_concurrency,
-            )
-            models = list({r for r, _ in needed})
-            steps_list = sorted({s for _, s in needed})
-            await pipeline.run(models, steps_list)
+            for run_name, step in needed:
+                cached = cache.get_scores(run_name, step, prompt_ids)
+                missing = [sample for sample in samples if sample.prompt_id not in cached]
+                if not missing:
+                    continue
+                log.info(
+                    f"{run_name} step {step}: {len(cached)} cached, {len(missing)} to evaluate"
+                )
+                results = await evaluate_checkpoint(
+                    missing,
+                    sampler_path=None if step == 0 else get_sampler_path(run_name, step),
+                    base_model=get_base_model(run_name),
+                    judge=judge_inst,
+                    service=service,
+                    num_completions=args.num_completions,
+                    max_tokens=args.max_tokens,
+                    temperature=args.temperature,
+                    gen_concurrency=args.gen_concurrency,
+                )
+                for result in results:
+                    if math.isnan(result.mean_normalized):
+                        continue
+                    cache.put(
+                        result.sample.prompt_id,
+                        run_name,
+                        step,
+                        {
+                            "completions": result.completions,
+                            "raw_scores": result.raw_scores,
+                            "normalized_scores": result.normalized_scores,
+                            "normalized_score": result.mean_normalized,
+                        },
+                    )
 
     output = Path(args.output)
 
@@ -314,6 +342,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--eval-judge-model", type=str, default="anthropic/claude-opus-4.5")
     p.add_argument("--max-tokens", type=int, default=4096)
     p.add_argument("--temperature", type=float, default=1.0)
+    p.add_argument("--num-completions", type=int, default=1)
     p.add_argument("--gen-concurrency", type=int, default=32)
     p.add_argument("--judge-concurrency", type=int, default=128)
     p.add_argument("--base-url", type=str, default=None)
