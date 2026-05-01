@@ -1,0 +1,5 @@
+# pointwise
+uv run scripts/cwb-experiments/train_grpo.py --judge-type pointwise --n-epochs 1 --eval-judge-model openai/gpt-5.4 --eval-max-samples 200 --eval-gen-concurrency 64 --eval-judge-concurrency 64
+
+# tourno
+uv run scripts/cwb-experiments/train_grpo.py --judge-type tourno --n-epochs 1 --eval-judge-model openai/gpt-5.4 --eval-max-samples 200 --eval-gen-concurrency 64 --eval-judge-concurrency 64
