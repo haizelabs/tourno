@@ -9,24 +9,24 @@ from typing import Awaitable, Callable
 
 import numpy as np
 import tinker
+import weave
 from data import HealthBenchDataLoader, HealthBenchSample
 from dotenv import load_dotenv
 from eval import (
     main as run_eval,
 )
 from eval import (
-    normalize_score,
     serialize_conversation,
-    serialize_rubric,
 )
+from judges import HealthBenchPairwiseJudge
 from openai import AsyncOpenAI
-from paths import PAIRWISE_PROMPT_PATH, POINTWISE_PROMPT_PATH
+from paths import PAIRWISE_TRAIN_PROMPT_PATH, POINTWISE_TRAIN_PROMPT_PATH
 from tinker_cookbook.model_info import get_recommended_renderer_name
 from tinker_cookbook.renderers import Renderer, get_renderer
 from tinker_cookbook.tokenizer_utils import get_tokenizer
 
-from tourno.eval.judges import PairwiseJudge, PointwiseJudge
-from tourno.logger import get_logger, setup, trace
+from tourno.eval.judges import PointwiseJudge
+from tourno.logger import get_logger, init_weave, setup, trace
 from tourno.tournament import adaptive_pointwise_rewards, batched_elo_rewards
 from tourno.training.grpo import training_loop
 from tourno.training.types import (
@@ -61,16 +61,17 @@ async def _get_pointwise_rewards(
     total_samples: int,
 ) -> list[float]:
     prompt = serialize_conversation(sample.prompt)
-    rubric = serialize_rubric(sample.rubrics)
+    # rubric = serialize_rubric(sample.rubrics)  # only needed by the rubric-anchored prompt
     raw_rewards = await adaptive_pointwise_rewards(
         prompt,
         completions,
         judge,
         total_samples=total_samples,
-        rubric=rubric,
+        # rubric=rubric,  # only needed by the rubric-anchored prompt
     )
 
-    return [normalize_score(r, sample.rubrics) for r in raw_rewards]
+    return [min(1.0, max(0.0, r / 20.0)) for r in raw_rewards]
+    # return [min(1.0, max(0.0, normalize_score(r, sample.rubrics))) for r in raw_rewards]
 
 
 def make_get_rewards(
@@ -82,8 +83,10 @@ def make_get_rewards(
     pointwise_total_samples: int | None = None,
 ) -> RewardFn:
     if judge_type == "pointwise":
-        judge = PointwiseJudge(judge_client, judge_model, POINTWISE_PROMPT_PATH.read_text())
+        judge = PointwiseJudge(judge_client, judge_model, POINTWISE_TRAIN_PROMPT_PATH.read_text())
+        # judge = PointwiseJudge(judge_client, judge_model, POINTWISE_PROMPT_PATH.read_text())
 
+        @weave.op
         async def pointwise(
             sample: HealthBenchSample, completions: list[str], _rollout_ids: list[str]
         ) -> tuple[list[float], int]:
@@ -99,19 +102,31 @@ def make_get_rewards(
         return pointwise
 
     elif judge_type == "tourno":
-        point_judge = PointwiseJudge(judge_client, judge_model, POINTWISE_PROMPT_PATH.read_text())
-        pair_judge = PairwiseJudge(judge_client, judge_model, PAIRWISE_PROMPT_PATH.read_text())
+        point_judge = PointwiseJudge(
+            judge_client,
+            judge_model,
+            POINTWISE_TRAIN_PROMPT_PATH.read_text(),
+        )
+        # point_judge = PointwiseJudge(
+        #     judge_client, judge_model, POINTWISE_PROMPT_PATH.read_text()
+        # )
+        pair_judge = HealthBenchPairwiseJudge(
+            judge_client, judge_model, PAIRWISE_TRAIN_PROMPT_PATH.read_text()
+        )
+        # pair_judge = PairwiseJudge(judge_client, judge_model, PAIRWISE_PROMPT_PATH.read_text())
 
+        @weave.op
         async def tourno(
             sample: HealthBenchSample, completions: list[str], _rollout_ids: list[str]
         ) -> tuple[list[float], int]:
             prompt = serialize_conversation(sample.prompt)
-            rubric = serialize_rubric(sample.rubrics)
+            # rubric = serialize_rubric(sample.rubrics)  # only needed by the rubric-anchored prompt
             pointwise_rewards, pairwise_rewards = await asyncio.gather(
                 _get_pointwise_rewards(
                     sample, completions, point_judge, total_samples=len(completions)
                 ),
-                batched_elo_rewards(prompt, completions, pair_judge, rubric=rubric),
+                batched_elo_rewards(prompt, completions, pair_judge),
+                # batched_elo_rewards(prompt, completions, pair_judge, rubric=rubric),
             )
 
             pointwise_arr = np.array(pointwise_rewards)
@@ -127,6 +142,7 @@ def make_get_rewards(
 
 
 @trace
+@weave.op(tracing_sample_rate=0.1)
 async def rollout(
     worker_id: int,
     sample: HealthBenchSample,
@@ -365,6 +381,10 @@ if __name__ == "__main__":
         filter_pattern=args.log_filter,
     )
 
+    ### Initialize weave tracing (before any OpenAI client is created) ###
+    if args.wandb_project:
+        init_weave(args.wandb_project)
+
     ### Initialize dataloader ###
     dataloader = HealthBenchDataLoader(batch_size=1, max_length=args.max_samples)
 
@@ -428,6 +448,7 @@ if __name__ == "__main__":
     )
 
     ### Initialize evaluation callback ###
+    @weave.op(tracing_sample_rate=0.0)
     async def on_checkpoint_save(step: int, _name: str, sampler_path: str) -> None:
         if args.no_eval:
             return

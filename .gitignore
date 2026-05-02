@@ -10,3 +10,6 @@ healthbench-results/
 figures/
 tulu-rl/
 cwbench-rl/
+.scratch/
+logs/
+truthfulqa-rl
