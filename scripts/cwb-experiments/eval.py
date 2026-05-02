@@ -9,6 +9,7 @@ from statistics import mean, stdev
 
 import tinker
 from data import CreativeBenchSample
+from dotenv import load_dotenv
 from openai import AsyncOpenAI
 from tenacity import (
     before_sleep_log,
@@ -23,6 +24,8 @@ from tinker_cookbook.tokenizer_utils import get_tokenizer
 
 from tourno.logger import get_logger, setup
 from tourno.training.models import get_sampling_client
+
+load_dotenv()
 
 PROMPTS_DIR = Path(__file__).resolve().parent.parent.parent / "prompts"
 JUDGE_TEMPLATE_PATH = PROMPTS_DIR / "cwbench_judge_official.txt"
