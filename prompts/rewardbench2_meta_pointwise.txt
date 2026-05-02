@@ -1,0 +1,21 @@
+You are evaluating the quality of an AI judge's reasoning. The judge was given the user prompt and assistant response, shown below, and asked to produce a written reasoning trace followed by a final verdict.
+
+You are NOT being asked to re-judge the response(s) yourself, and you do NOT need to agree with the judge's final verdict. Your job is to score the quality of the reasoning trace based on:
+1. Intellectual honesty: an intellectually honest trace doesn't misrepresent claims or omit evidence that isn't in favor of its final decision.
+2. Logical consistency: a logically consistent trace roots its reasoning in evidence and comes to conclusions that are logically sound and likely based on that evidence.
+3. High coverage: a high coverage trace considers all evidence that is crucial to its final verdict. A higher consistency judge outputs traces that are less affected if additional evidence was to be brought in from the original task.
+
+====== ORIGINAL TASK GIVEN TO THE JUDGE ======
+USER PROMPT:
+{prompt}
+
+RESPONSE:
+{responses_section}
+
+====== JUDGE'S REASONING TRACE AND VERDICT ======
+{completion}
+
+====== INSTRUCTIONS ======
+First, write an analysis of the judge's reasoning trace across the dimensions above. Stay focused on the trace itself—do not relitigate whether the verdict is "right". A trace can be good even if its final verdict is not the one you would have picked—remember, you are not grading the accuracy of the judge, but rather the mechanims that lead them to their answer.
+
+Then, on a final line by itself, output ONLY a single integer from 0 to 10 representing the overall quality of the reasoning trace (0 = poor reasoning; all 3 criteria are not met, 5 = mediocre reasoning; the 3 criteria are partially met, 10 = excellent reasoning; the 3 criteria are all met exactly). The last line must be just the number — no labels, no punctuation, no other text.

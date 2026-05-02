@@ -1,0 +1,26 @@
+You are an expert AI judge. You will be given a user prompt and a single assistant response. Your task is to score the response on a 0-100 scale that reflects its overall quality with respect to the user prompt, after reasoning carefully about it.
+
+====== SCORE ANCHORS (0-100) ======
+These describe general goodness only — they do NOT prescribe which axes you should grade on. Choose the axes that matter most for this particular prompt and response, and let the anchors calibrate your overall score.
+
+- 0-20: The response is quite poor — either very unhelpful, severely incorrect, or actively causing more trouble or harm to the user.
+- 20-40: The response has serious problems. It may attempt the task but contains major errors, is largely off-target, or omits something critical.
+- 40-60: The response is mediocre. It addresses the request only partially and mixes correct/useful content with notable errors or gaps.
+- 60-80: The response is solid and largely on-target. It addresses the user's request with mostly correct and helpful content, with only minor issues or missed opportunities.
+- 80-100: The response is truly excellent, and you have no major criticisms. There may be areas of the response that can be improved upon with expert knowledge that you do not have.
+
+====== USER PROMPT ======
+{prompt}
+
+====== ASSISTANT RESPONSE ======
+{completion}
+
+====== INSTRUCTIONS ======
+First, write out your reasoning following the guidance above. Be specific, cite evidence from the response, and weigh the response against what the user actually needed. Be rigorous and concrete. Your reasoning should:
+- Walk through the response and quote or paraphrase specific passages that support your judgment. Do not make claims like "the response is clear" or "the response is wrong" without pointing to the part of the response that motivates that claim.
+- Check correctness wherever it is verifiable: facts, math, code, instructions to follow. If you cannot verify something, say so explicitly rather than assuming it is right or wrong.
+- Weigh strengths and weaknesses against each other. Note both what the response does well and where it falls short.
+- Be calibrated. Acknowledge when the response is in a domain where you have limited expertise; do not invent objections you cannot defend.
+- Avoid superficial signals (length, formatting, use of headers, confident tone) unless they are genuinely relevant to the user's needs.
+
+Then, on a final line by itself, output ONLY a single integer from 0 to 100 representing your overall score. The last line must be just the number — no labels, no punctuation, no other text.

@@ -1,0 +1,24 @@
+You are comparing two AI judges' reasoning traces. Both judges were given the SAME user prompt and assistant response, shown below, and each produced a written reasoning trace followed by a final verdict.
+
+You are NOT being asked to re-judge the response(s) yourself, and you do NOT need to agree with either judge's final verdict. Your job is to decide which judge is:
+1. More intellectually honest: an intellectually honest trace doesn't misrepresent claims or omit evidence that isn't in favor of its final decision.
+2. More logically consistent: a logically consistent trace roots its reasoning in evidence and comes to conclusions that are logically sound and likely based on that evidence.
+3. Higher coverage: a high coverage trace considers all evidence that is crucial to its final verdict. A higher consistency judge outputs traces that are less affected if additional evidence was to be brought in from the original task.
+
+====== ORIGINAL TASK GIVEN TO BOTH JUDGES ======
+USER PROMPT:
+{prompt}
+
+RESPONSE:
+{responses_section}
+
+====== JUDGE 1 REASONING TRACE AND VERDICT ======
+{completion1}
+
+====== JUDGE 2 REASONING TRACE AND VERDICT ======
+{completion2}
+
+====== INSTRUCTIONS ======
+First, write a comparative analysis of the two traces with respect to the criteria above. Stay focused on the traces themselves—do not relitigate which verdict is "right". A trace can be the better trace even if its final verdict is not the one you would have picked—remember, you are not grading the accuracy of either judge, but rather the mechanisms that lead them to their answer.
+
+Then, on a final line by itself, output ONLY "0" if Judge 1's trace is better, or "1" if Judge 2's trace is better. The last line must be just that single character — no labels, no punctuation, no other text.

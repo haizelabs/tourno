@@ -83,8 +83,8 @@ async def _compute_round_robin_wins(
         *(
             judge(
                 prompt=prompt,
-                completion_a=completion_a,
-                completion_b=completion_b,
+                completion1=completion_a,
+                completion2=completion_b,
                 **template_kwargs,
             )
             for completion_a, completion_b in judge_inputs
@@ -223,8 +223,8 @@ async def batched_elo_rewards(
             *(
                 judge(
                     prompt=prompt,
-                    completion_a=completions[a],
-                    completion_b=completions[b],
+                    completion1=completions[a],
+                    completion2=completions[b],
                     **template_kwargs,
                 )
                 for a, b in matches

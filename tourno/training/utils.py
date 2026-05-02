@@ -1,10 +1,8 @@
 import asyncio
-import inspect
 import json
 import math
 import os
-from collections.abc import Awaitable, Callable
-from typing import Any, Protocol, cast
+from typing import Protocol, cast
 
 import numpy as np
 import scipy.signal
@@ -136,13 +134,12 @@ def get_learning_rate(step: int, config: LearningRateConfig) -> float:
     )
 
 
-async def save_checkpoint_and_get_sampling_client(
+async def save_checkpoint(
     training_client: tinker.TrainingClient,
     step: int,
     log_path: str,
     ttl_seconds: int | None = None,
-    on_checkpoint_save: Callable[[int, str, str], Awaitable[None] | None] | None = None,
-) -> tuple[tinker.SamplingClient, dict[str, Any]]:
+) -> tuple[str, str]:
     log = get_logger()
     name = f"{step:06d}"
     state_future = await training_client.save_state_async(name, ttl_seconds=ttl_seconds)
@@ -159,10 +156,5 @@ async def save_checkpoint_and_get_sampling_client(
         f.write(json.dumps(checkpoint) + "\n")
 
     log.info(f"Saved checkpoint at step {step}: {paths}")
-    if on_checkpoint_save is not None:
-        result = on_checkpoint_save(step, name, sampler_result.path)
-        if inspect.isawaitable(result):
-            await result
 
-    metrics: dict[str, Any] = {"checkpoint": name}
-    return training_client.create_sampling_client(sampler_result.path), metrics
+    return name, sampler_result.path

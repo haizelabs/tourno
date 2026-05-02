@@ -24,7 +24,7 @@ from tourno.training.utils import (
     compute_post_kl,
     get_learning_rate,
     incorporate_kl_penalty,
-    save_checkpoint_and_get_sampling_client,
+    save_checkpoint,
 )
 
 # ---------------------------------------------------------------------------
@@ -215,10 +215,9 @@ async def training_loop(
     training_queue: TrainingQueue,
     update_sampling_client: Callable[[tinker.SamplingClient, int], None],
     on_checkpoint_save: Callable[[int, str, str], Awaitable[None] | None] | None = None,
-    extra_metrics_fn: Callable[
-        [int, list[TrajectoryGroup]], dict[str, Any] | Awaitable[dict[str, Any]]
-    ]
-    | None = None,
+    extra_metrics_fn: (
+        Callable[[int, list[TrajectoryGroup]], dict[str, Any] | Awaitable[dict[str, Any]]] | None
+    ) = None,
     validation_fn: Callable[[int], Awaitable[dict[str, Any]]] | None = None,
 ) -> None:
     log = get_logger("grpo")
@@ -335,19 +334,31 @@ async def training_loop(
         should_save_checkpoint = (
             config.save_every > 0 and completed_step > 0 and completed_step % config.save_every == 0
         )
+        checkpoint_name: str | None = None
+        sampler_path: str | None = None
         if should_save_checkpoint:
-            sampling_client, checkpoint_metrics = await save_checkpoint_and_get_sampling_client(
+            checkpoint_name, sampler_path = await save_checkpoint(
                 training_client,
                 completed_step,
                 config.log_path,
                 config.ttl_seconds,
-                on_checkpoint_save=on_checkpoint_save,
             )
+            metrics["checkpoint"] = checkpoint_name
+            sampling_client = training_client.create_sampling_client(sampler_path)
         else:
             sampling_client = await training_client.save_weights_and_get_sampling_client_async()
-            checkpoint_metrics = {}
+
         update_sampling_client(sampling_client, step)
-        metrics.update(checkpoint_metrics)
+
+        if (
+            should_save_checkpoint
+            and on_checkpoint_save is not None
+            and checkpoint_name is not None
+            and sampler_path is not None
+        ):
+            cb_result = on_checkpoint_save(completed_step, checkpoint_name, sampler_path)
+            if inspect.isawaitable(cb_result):
+                await cb_result
 
         ### Post-update KL ###
         if config.compute_post_kl:
@@ -377,17 +388,20 @@ async def training_loop(
     already_saved = config.save_every > 0 and final_step > 0 and final_step % config.save_every == 0
     if final_step > 0 and not already_saved:
         log.info(f"Saving final checkpoint at step {final_step}")
-        sampling_client, final_save_metrics = await save_checkpoint_and_get_sampling_client(
+        checkpoint_name, sampler_path = await save_checkpoint(
             training_client,
             final_step,
             config.log_path,
             config.ttl_seconds,
-            on_checkpoint_save=on_checkpoint_save,
         )
-        update_sampling_client(sampling_client, final_step - 1)
-        log_metrics(final_save_metrics, step=final_step - 1)
+        if on_checkpoint_save is not None:
+            cb_result = on_checkpoint_save(final_step, checkpoint_name, sampler_path)
+            if inspect.isawaitable(cb_result):
+                await cb_result
+
+        log_metrics({"checkpoint": checkpoint_name}, step=final_step - 1)
         if wandb_run is not None:
-            wandb.log(final_save_metrics, step=final_step - 1)
+            wandb.log({"checkpoint": checkpoint_name}, step=final_step - 1)
 
     if wandb_run is not None:
         wandb_run.finish()
