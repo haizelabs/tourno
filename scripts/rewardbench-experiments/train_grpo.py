@@ -5,7 +5,7 @@ import math
 import os
 import time
 from pathlib import Path
-from typing import Awaitable, Callable
+from typing import Any, Awaitable, Callable
 
 import numpy as np
 import tinker
@@ -13,13 +13,20 @@ import weave
 from data import RewardBenchDataLoader, RewardBenchSample
 from dotenv import load_dotenv
 from eval import main as run_eval
-from judges import MetaPairwiseJudge, MetaPointwiseJudge, render_responses_section
+from judges import (
+    MetaPairwiseJudge,
+    MetaPointwiseJudge,
+    SelfPlayMetaPairwiseJudge,
+    SelfPlayMetaPointwiseJudge,
+    render_responses_section,
+)
 from openai import AsyncOpenAI
 from paths import POLICY_POINTWISE_PROMPT_PATH, VAL_DATASET_PATH
 from tinker_cookbook.model_info import get_recommended_renderer_name
 from tinker_cookbook.renderers import Renderer, get_renderer
 from tinker_cookbook.tokenizer_utils import get_tokenizer
 
+import wandb
 from tourno.logger import get_logger, init_weave, setup, trace
 from tourno.tournament import adaptive_pointwise_rewards, batched_elo_rewards
 from tourno.training.grpo import training_loop
@@ -70,20 +77,48 @@ async def _get_pointwise_rewards(
         total_samples=total_samples,
         responses_section=render_responses_section(sample.response),
     )
-    return [min(1.0, max(0.0, r / 10.0)) for r in raw_rewards]
+    return [min(1.0, max(0.0, r / 100.0)) for r in raw_rewards]
 
 
 def make_get_rewards(
     *,
     judge_type: str,
-    judge_client: AsyncOpenAI,
-    judge_model: str,
+    judge_client: AsyncOpenAI | None,
+    judge_model: str | None,
     pairwise_alpha: float,
     pointwise_total_samples: int | None = None,
     judge_sampling_kwargs: dict | None = None,
+    self_play_get_sampling_client: Callable[[], tinker.SamplingClient] | None = None,
+    self_play_renderer: Renderer | None = None,
+    self_play_max_tokens: int = 2048,
+    self_play_temperature: float = 0.0,
 ) -> RewardFn:
+    self_play = self_play_get_sampling_client is not None
+    if self_play:
+        assert self_play_renderer is not None, "self-play requires a renderer"
+
+    def _build_pointwise_judge():
+        if self_play:
+            return SelfPlayMetaPointwiseJudge(
+                get_sampling_client=self_play_get_sampling_client,
+                renderer=self_play_renderer,
+                max_tokens=self_play_max_tokens,
+                temperature=self_play_temperature,
+            )
+        return MetaPointwiseJudge(judge_client, judge_model, judge_sampling_kwargs)
+
+    def _build_pairwise_judge():
+        if self_play:
+            return SelfPlayMetaPairwiseJudge(
+                get_sampling_client=self_play_get_sampling_client,
+                renderer=self_play_renderer,
+                max_tokens=self_play_max_tokens,
+                temperature=self_play_temperature,
+            )
+        return MetaPairwiseJudge(judge_client, judge_model, judge_sampling_kwargs)
+
     if judge_type == "pointwise":
-        judge = MetaPointwiseJudge(judge_client, judge_model, judge_sampling_kwargs)
+        judge = _build_pointwise_judge()
 
         @weave.op
         async def pointwise(
@@ -101,7 +136,7 @@ def make_get_rewards(
         return pointwise
 
     if judge_type == "pairwise":
-        judge = MetaPairwiseJudge(judge_client, judge_model, judge_sampling_kwargs)
+        judge = _build_pairwise_judge()
 
         @weave.op
         async def pairwise(
@@ -118,8 +153,8 @@ def make_get_rewards(
         return pairwise
 
     if judge_type == "tourno":
-        point_judge = MetaPointwiseJudge(judge_client, judge_model, judge_sampling_kwargs)
-        pair_judge = MetaPairwiseJudge(judge_client, judge_model, judge_sampling_kwargs)
+        point_judge = _build_pointwise_judge()
+        pair_judge = _build_pairwise_judge()
 
         @weave.op
         async def tourno(
@@ -202,6 +237,10 @@ async def rollout(
         trajectories=trajectories,
         rewards=rewards,
         judge_calls=judge_calls,
+        prompt=f"{sample.prompt}\n\n[response under judgment]\n{sample.response}",
+        completions=completion_texts,
+        sample_id=f"{sample.source_id}_{'chosen' if sample.is_chosen else 'rejected'}",
+        worker_id=worker_id,
     )
     await training_queue.put((sampling_client_step, traj_group))
 
@@ -220,6 +259,11 @@ async def main(
     renderer_name: str | None,
     policy_template: str,
     on_checkpoint_save: Callable[[int, str, str], Awaitable[None] | None] | None = None,
+    extra_metrics_fn: (
+        Callable[[int, list[TrajectoryGroup]], Awaitable[dict[str, Any]]] | None
+    ) = None,
+    pending_eval_tasks: list[asyncio.Task] | None = None,
+    sampling_client_holder: dict[str, Any] | None = None,
 ):
     log = get_logger()
     tokenizer = get_tokenizer(config.base_model)
@@ -233,6 +277,9 @@ async def main(
     def update_sampling_client(client: tinker.SamplingClient, step: int) -> None:
         nonlocal sampling_client_with_step
         sampling_client_with_step = (client, step)
+        if sampling_client_holder is not None:
+            sampling_client_holder["client"] = client
+            sampling_client_holder["step"] = step
         if not sampling_client_ready.is_set():
             sampling_client_ready.set()
 
@@ -243,6 +290,7 @@ async def main(
             training_queue,
             update_sampling_client,
             on_checkpoint_save,
+            extra_metrics_fn=extra_metrics_fn,
         )
     )
 
@@ -298,6 +346,13 @@ async def main(
                 task.cancel()
 
         await asyncio.gather(*all_tasks, return_exceptions=True)
+
+        if pending_eval_tasks:
+            outstanding = [t for t in pending_eval_tasks if not t.done()]
+            if outstanding:
+                log.info(f"Waiting for {len(outstanding)} in-flight eval task(s) to finish...")
+                await asyncio.gather(*outstanding, return_exceptions=True)
+
         log.info("Training complete")
 
 
@@ -321,6 +376,17 @@ def parse_args() -> argparse.Namespace:
         default="pointwise",
     )
     parser.add_argument("--judge-model", type=str, default="gpt-4.1-2025-04-14")
+    parser.add_argument(
+        "--self-play-judge",
+        action="store_true",
+        help=(
+            "Use the LIVE training policy as its own meta-judge (true self-play). "
+            "Ignores --judge-model. The judge improves with the policy — but watch "
+            "for preference collapse via the periodic Sonnet eval."
+        ),
+    )
+    parser.add_argument("--self-play-judge-max-tokens", type=int, default=2048)
+    parser.add_argument("--self-play-judge-temperature", type=float, default=0.0)
     parser.add_argument("--pairwise-alpha", type=float, default=0.5)
     parser.add_argument("--judge-temperature", type=float, default=None)
     parser.add_argument("--judge-top-p", type=float, default=None)
@@ -338,6 +404,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--log-level", type=str, default="INFO")
     parser.add_argument("--log-filter", type=str, default=None)
     parser.add_argument("--wandb-project", type=str, default=None)
+    parser.add_argument(
+        "--no-trace-table",
+        action="store_true",
+        help="Disable the wandb incremental rollouts trace Table.",
+    )
 
     parser.add_argument("--base-model", type=str, default="Qwen/Qwen3-8B")
     parser.add_argument("--renderer", type=str, default=None)
@@ -358,6 +429,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--save-every", type=int, default=20)
     parser.add_argument("--log-path", type=str, default="./rewardbench2-rl")
     parser.add_argument("--base-url", type=str, default=None)
+    parser.add_argument(
+        "--load-checkpoint-path",
+        type=str,
+        default=None,
+        help="Resume training from a tinker:// state_path (the .../weights/NNNNNN URL).",
+    )
+    parser.add_argument(
+        "--resume-optimizer",
+        action="store_true",
+        help="If set with --load-checkpoint-path, also resume optimizer state.",
+    )
 
     parser.add_argument("--loss-fn", type=str, default="importance_sampling")
     parser.add_argument("--kl-reference-model", type=str, default=None)
@@ -394,9 +476,10 @@ if __name__ == "__main__":
 
     run_prefix = "rewardbench2-grpo"
     model_short = args.base_model.split("/")[-1]
+    judge_label = "selfplay" if args.self_play_judge else args.judge_model
     name = (
         f"{model_short}_lr{args.learning_rate}_bs{args.batch_size}_lora{args.lora_rank}_"
-        f"{args.judge_type}_judge{args.judge_model}"
+        f"{args.judge_type}_judge{judge_label}"
     )
     if args.judge_type == "tourno" and args.pairwise_alpha > 0:
         name += f"_alpha{args.pairwise_alpha}"
@@ -412,6 +495,8 @@ if __name__ == "__main__":
         lora_rank=args.lora_rank,
         judge_type=args.judge_type,
         judge_model=args.judge_model,
+        load_checkpoint_path=args.load_checkpoint_path,
+        resume_optimizer=args.resume_optimizer,
         kl_reference_model=args.kl_reference_model,
         base_url=args.base_url,
         learning_rate=args.learning_rate,
@@ -429,7 +514,9 @@ if __name__ == "__main__":
         wandb_project=args.wandb_project,
     )
 
-    if os.getenv("OPENAI_API_KEY"):
+    if args.self_play_judge:
+        judge_client = None
+    elif os.getenv("OPENAI_API_KEY"):
         judge_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     elif os.getenv("OPENROUTER_API_KEY"):
         judge_client = AsyncOpenAI(
@@ -449,34 +536,135 @@ if __name__ == "__main__":
         if v is not None
     }
 
+    sampling_client_holder: dict[str, Any] = {}
+    self_play_renderer: Renderer | None = None
+    self_play_get_client: Callable[[], tinker.SamplingClient] | None = None
+    if args.self_play_judge:
+        sp_tokenizer = get_tokenizer(args.base_model)
+        sp_renderer_name = args.renderer or get_recommended_renderer_name(args.base_model)
+        self_play_renderer = get_renderer(sp_renderer_name, sp_tokenizer)
+
+        def self_play_get_client() -> tinker.SamplingClient:
+            client = sampling_client_holder.get("client")
+            if client is None:
+                raise RuntimeError("Self-play judge called before sampling client ready")
+            return client
+
     get_rewards = make_get_rewards(
         judge_type=args.judge_type,
         judge_client=judge_client,
-        judge_model=args.judge_model,
+        judge_model=None if args.self_play_judge else args.judge_model,
         pairwise_alpha=args.pairwise_alpha,
         pointwise_total_samples=args.pointwise_total_samples,
         judge_sampling_kwargs=judge_sampling_kwargs,
+        self_play_get_sampling_client=self_play_get_client if args.self_play_judge else None,
+        self_play_renderer=self_play_renderer,
+        self_play_max_tokens=args.self_play_judge_max_tokens,
+        self_play_temperature=args.self_play_judge_temperature,
     )
     policy_template = POLICY_POINTWISE_PROMPT_PATH.read_text()
+
+    ### Initialize evaluation callback (parallel / fire-and-forget) ###
+    pending_eval_tasks: list[asyncio.Task] = []
+    eval_log = get_logger("eval")
+
+    async def _run_validation(step: int, sampler_path: str) -> None:
+        try:
+            summary = await run_eval(
+                label=f"step_{step:06d}",
+                dataset_path=Path(args.eval_dataset),
+                output_dir=Path(config.log_path) / "evals",
+                base_model=args.base_model,
+                sampler_path=sampler_path,
+                base_url=args.base_url,
+                renderer_name=args.renderer,
+                max_samples=args.eval_max_samples,
+                max_tokens=args.eval_max_tokens,
+                temperature=args.eval_temperature,
+                gen_concurrency=args.eval_gen_concurrency,
+            )
+        except Exception:
+            eval_log.exception(f"Validation at step {step} failed")
+            return
+
+        if wandb.run is None or not summary:
+            return
+
+        eval_metrics: dict[str, Any] = {"eval_step": step}
+        if summary.get("accuracy") is not None:
+            eval_metrics["eval/accuracy"] = summary["accuracy"]
+        eval_metrics["eval/n_scored"] = summary.get("n_scored", 0)
+        eval_metrics["eval/n_errors"] = summary.get("n_errors", 0)
+        for subset, stats in summary.get("per_subset", {}).items():
+            if stats.get("accuracy") is None:
+                continue
+            safe = subset.replace("/", "_").replace(" ", "_")
+            eval_metrics[f"eval/per_subset/{safe}/accuracy"] = stats["accuracy"]
+            eval_metrics[f"eval/per_subset/{safe}/n"] = stats.get("n", 0)
+
+        wandb.log(eval_metrics)
+        eval_log.info(f"Logged validation metrics for step {step} to wandb")
 
     @weave.op(tracing_sample_rate=0.0)
     async def on_checkpoint_save(step: int, _name: str, sampler_path: str) -> None:
         if args.no_eval:
             return
+        # Fire-and-forget: training proceeds while validation runs concurrently.
+        task = asyncio.create_task(_run_validation(step, sampler_path))
+        pending_eval_tasks.append(task)
+        # Periodic best-effort cleanup of completed tasks.
+        pending_eval_tasks[:] = [t for t in pending_eval_tasks if not t.done()]
 
-        await run_eval(
-            label=f"step_{step:06d}",
-            dataset_path=Path(args.eval_dataset),
-            output_dir=Path(config.log_path) / "evals",
-            base_model=args.base_model,
-            sampler_path=sampler_path,
-            base_url=args.base_url,
-            renderer_name=args.renderer,
-            max_samples=args.eval_max_samples,
-            max_tokens=args.eval_max_tokens,
-            temperature=args.eval_temperature,
-            gen_concurrency=args.eval_gen_concurrency,
-        )
+    ### Initialize wandb trace Table (incremental — uploads only deltas) ###
+    trace_state: dict[str, Any] = {"table": None, "metrics_defined": False}
+
+    async def extra_metrics_fn(
+        step: int, trajectory_groups: list[TrajectoryGroup]
+    ) -> dict[str, Any]:
+        if wandb.run is None:
+            return {}
+
+        if not trace_state["metrics_defined"]:
+            # Give eval/* its own x-axis so parallel-eval logs (which arrive out of order
+            # vs. the main training step counter) plot correctly.
+            wandb.define_metric("eval_step")
+            wandb.define_metric("eval/*", step_metric="eval_step")
+            trace_state["metrics_defined"] = True
+
+        if args.no_trace_table:
+            return {}
+
+        if trace_state["table"] is None:
+            trace_state["table"] = wandb.Table(
+                columns=[
+                    "step",
+                    "worker_id",
+                    "sample_id",
+                    "prompt",
+                    "completion",
+                    "reward",
+                    "judge_calls",
+                ],
+                log_mode="INCREMENTAL",
+            )
+
+        table = trace_state["table"]
+        for tg in trajectory_groups:
+            if tg.completions is None or tg.prompt is None:
+                continue
+            for completion, reward in zip(tg.completions, tg.rewards):
+                table.add_data(
+                    step,
+                    tg.worker_id if tg.worker_id is not None else -1,
+                    tg.sample_id or "",
+                    tg.prompt,
+                    completion,
+                    float(reward),
+                    int(tg.judge_calls),
+                )
+
+        wandb.log({"rollouts": table}, step=step)
+        return {}
 
     asyncio.run(
         main(
@@ -490,5 +678,8 @@ if __name__ == "__main__":
             renderer_name=args.renderer,
             policy_template=policy_template,
             on_checkpoint_save=on_checkpoint_save,
+            extra_metrics_fn=extra_metrics_fn,
+            pending_eval_tasks=pending_eval_tasks,
+            sampling_client_holder=sampling_client_holder if args.self_play_judge else None,
         )
     )

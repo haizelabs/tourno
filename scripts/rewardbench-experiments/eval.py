@@ -17,6 +17,9 @@ from tourno.logger import get_logger, setup
 from tourno.training.models import get_sampling_client
 
 _NUMBER_RE = re.compile(r"[-]?\d+\.?\d*")
+_SCORE_HEADER_RE = re.compile(r"#\s*SCORE\b", re.IGNORECASE)
+_RATING_RE = re.compile(r"\b(?:[Rr]ating|[Ss]core)[\s\W]*?(\d{1,3})(?!\d)")
+_NN_OUT_OF_100_RE = re.compile(r"(\d{1,3})\s*/\s*100\b")
 
 
 def _stop_token_ids(renderer: Renderer) -> list[int]:
@@ -33,20 +36,49 @@ def _stop_token_ids(renderer: Renderer) -> list[int]:
 
 
 def parse_policy_score(text: str) -> float:
-    stripped = text.strip()
-    last_line = next((line.strip() for line in reversed(stripped.splitlines()) if line.strip()), "")
-    try:
-        score = float(last_line)
-    except ValueError:
-        numbers = _NUMBER_RE.findall(last_line) or _NUMBER_RE.findall(stripped)
-        if not numbers:
-            raise ValueError(f"Could not parse score from: {text!r}")
-        score = float(numbers[-1])
+    """Extract the integer after the LAST `# SCORE` header.
 
-    if not 0.0 <= score <= 100.0:
-        raise ValueError(f"Expected score in [0, 100], got {score}")
+    The policy template enforces a `# EXPLANATION ... # SCORE NN` format.
+    We anchor on the last `# SCORE` and grab the first number after it,
+    which sidesteps the old failure mode of grabbing years/quantities from
+    the explanation prose. Falls back to last-line integer for robustness.
+    """
+    matches = list(_SCORE_HEADER_RE.finditer(text))
+    if matches:
+        suffix = text[matches[-1].end():]
+        numbers = _NUMBER_RE.findall(suffix)
+        if numbers:
+            score = float(numbers[0])
+            if 0.0 <= score <= 100.0:
+                return score
 
-    return score
+    # Fallback A: last `Rating: NN` or `Score: NN` (legacy format)
+    rating_matches = _RATING_RE.findall(text)
+    for v in reversed(rating_matches):
+        n = float(v)
+        if 0.0 <= n <= 100.0:
+            return n
+
+    # Fallback B: last `NN/100` pattern
+    out_of_matches = _NN_OUT_OF_100_RE.findall(text)
+    for v in reversed(out_of_matches):
+        n = float(v)
+        if 0.0 <= n <= 100.0:
+            return n
+
+    # Fallback C: last non-empty line as a bare integer
+    for line in reversed(text.strip().splitlines()):
+        line = line.strip()
+        if not line:
+            continue
+        nums = _NUMBER_RE.findall(line)
+        if nums:
+            score = float(nums[-1])
+            if 0.0 <= score <= 100.0:
+                return score
+        break
+
+    raise ValueError(f"Could not parse score from: {text[-300:]!r}")
 
 
 async def generate_judge_outputs(

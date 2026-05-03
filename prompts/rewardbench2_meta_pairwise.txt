@@ -1,24 +1,33 @@
-You are comparing two AI judges' reasoning traces. Both judges were given the SAME user prompt and assistant response, shown below, and each produced a written reasoning trace followed by a final verdict.
+Please act as an impartial meta-judge and evaluate the quality of two AI judges' reasoning traces shown below. Both judges were given the SAME user question and assistant response, and each produced a written analysis ending with a numeric verdict (each judge's own score for the assistant response, on a 0-100 scale).
 
-You are NOT being asked to re-judge the response(s) yourself, and you do NOT need to agree with either judge's final verdict. Your job is to decide which judge is:
-1. More intellectually honest: an intellectually honest trace doesn't misrepresent claims or omit evidence that isn't in favor of its final decision.
-2. More logically consistent: a logically consistent trace roots its reasoning in evidence and comes to conclusions that are logically sound and likely based on that evidence.
-3. Higher coverage: a high coverage trace considers all evidence that is crucial to its final verdict. A higher consistency judge outputs traces that are less affected if additional evidence was to be brought in from the original task.
+Your evaluation is of the JUDGES' TRACES, not of the assistant response, and not of which final verdict number is "right". Consider:
+- Relevance of each trace to the question and response
+- Accuracy of the claims each makes about the response
+- Depth and rigor of analysis
+- How well each verdict follows from its reasoning
 
-====== ORIGINAL TASK GIVEN TO BOTH JUDGES ======
-USER PROMPT:
+Avoid any position biases and ensure that the order in which the traces were presented does not influence your decision. Do not allow the length of the traces to influence your evaluation. Be as objective as possible. Follow the output format specified at the end of this prompt exactly.
+
+[USER QUESTION]
 {prompt}
 
-RESPONSE:
+[ASSISTANT RESPONSE]
 {responses_section}
 
-====== JUDGE 1 REASONING TRACE AND VERDICT ======
+[THE START OF JUDGE A'S TRACE AND VERDICT]
 {completion1}
+[THE END OF JUDGE A'S TRACE AND VERDICT]
 
-====== JUDGE 2 REASONING TRACE AND VERDICT ======
+[THE START OF JUDGE B'S TRACE AND VERDICT]
 {completion2}
+[THE END OF JUDGE B'S TRACE AND VERDICT]
 
-====== INSTRUCTIONS ======
-First, write a comparative analysis of the two traces with respect to the criteria above. Stay focused on the traces themselves—do not relitigate which verdict is "right". A trace can be the better trace even if its final verdict is not the one you would have picked—remember, you are not grading the accuracy of either judge, but rather the mechanisms that lead them to their answer.
+Output your response using EXACTLY this two-section format and nothing else:
 
-Then, on a final line by itself, output ONLY "0" if Judge 1's trace is better, or "1" if Judge 2's trace is better. The last line must be just that single character — no labels, no punctuation, no other text.
+# EXPLANATION
+[your comparative reasoning, may be multiple paragraphs]
+
+# SCORES
+[[score_a, score_b]]
+
+Where score_a is your rating of Judge A's trace QUALITY (0 to 100) and score_b is your rating of Judge B's trace QUALITY (0 to 100). Use plain integers separated by a comma — do NOT include labels like "score_a:" inside the brackets. Equal scores indicate a tie. Do not write anything after the # SCORES line.

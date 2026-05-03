@@ -9,7 +9,7 @@ from statistics import mean, stdev
 import tinker
 from data import HealthBenchSample, Rubric
 from openai import AsyncOpenAI
-from paths import POINTWISE_PROMPT_PATH
+from paths import POINTWISE_TRAIN_PROMPT_PATH
 from tinker_cookbook.model_info import get_recommended_renderer_name
 from tinker_cookbook.renderers import Renderer, get_renderer
 from tinker_cookbook.tokenizer_utils import get_tokenizer
@@ -41,11 +41,11 @@ def serialize_rubric(rubric: list[Rubric]) -> str:
     return "\n".join(f"{i + 1}. {r.criterion} | Weight: {r.points}" for i, r in enumerate(rubric))
 
 
-def normalize_score(raw: float, rubrics: list[Rubric]) -> float:
-    pos = sum(r.points for r in rubrics if r.points > 0)
-    neg = sum(r.points for r in rubrics if r.points < 0)
-
-    return (raw - neg) / max(1e-4, pos - neg)
+def normalize_score(raw: float, rubrics: list[Rubric] | None = None) -> float:
+    # Training-time prompt asks for a holistic 0-20 score, so the normalized
+    # form is just raw / 20 clamped to [0, 1]. The `rubrics` arg is preserved
+    # for backwards-compat with code that still passes it.
+    return min(1.0, max(0.0, raw / 20.0))
 
 
 async def generate_completions(
@@ -108,7 +108,6 @@ def build_rows(
                     "prompt_id": sample.prompt_id,
                     "prompt": serialize_conversation(sample.prompt),
                     "completion": completion,
-                    "rubric": serialize_rubric(sample.rubrics),
                 }
             )
             sample_idx_per_row.append(i)
@@ -137,7 +136,7 @@ def summarize(
                 continue
             raw = float(val)
             raw_per_sample[sample_idx].append(raw)
-            norm_per_sample[sample_idx].append(normalize_score(raw, samples[sample_idx].rubrics))
+            norm_per_sample[sample_idx].append(normalize_score(raw))
 
         sample_means_raw = [mean(rs) for rs in raw_per_sample if rs]
         sample_means_norm = [mean(ns) for ns in norm_per_sample if ns]
@@ -207,7 +206,7 @@ async def main(
     )
 
     ### Build judges and rows ###
-    judge_template = POINTWISE_PROMPT_PATH.read_text()
+    judge_template = POINTWISE_TRAIN_PROMPT_PATH.read_text()
     judges = {
         model: PointwiseJudge(
             client=judge_client,
@@ -251,6 +250,8 @@ async def main(
             if mean_norm is not None and mean_raw is not None
             else f"{name}: all errors ({stats['n_errors']}/{stats['n_completions_total']})"
         )
+
+    return summary
 
 
 def parse_args() -> argparse.Namespace:
