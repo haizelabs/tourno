@@ -16,8 +16,7 @@ class TrajectoryGroup(pydantic.BaseModel):
     trajectories: list[list[TrajectoryTurn]]
     rewards: list[float]
     judge_calls: int = 0
-
-    # Optional trace metadata for downstream logging (wandb tables, JSONL, etc.)
+    # Optional metadata used by extra_metrics_fn / wandb traces table.
     prompt: str | None = None
     completions: list[str] | None = None
     sample_id: str | None = None

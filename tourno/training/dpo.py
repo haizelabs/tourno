@@ -20,7 +20,7 @@ from tourno.training.models import get_sampling_client, get_training_client
 from tourno.training.types import DPOConfig, DPOPair
 from tourno.training.utils import (
     get_learning_rate,
-    save_checkpoint_and_get_sampling_client,
+    save_checkpoint,
 )
 
 
@@ -285,15 +285,18 @@ async def training_loop(
             config.save_every > 0 and completed_step > 0 and completed_step % config.save_every == 0
         )
         if should_save:
-            _, checkpoint_metrics = await save_checkpoint_and_get_sampling_client(
+            checkpoint_name, sampler_path = await save_checkpoint(
                 training_client,
                 completed_step,
                 config.log_path,
                 config.ttl_seconds,
-                on_checkpoint_save=on_checkpoint_save,
             )
+            if on_checkpoint_save is not None:
+                cb_result = on_checkpoint_save(completed_step, checkpoint_name, sampler_path)
+                if inspect.isawaitable(cb_result):
+                    await cb_result
 
-            metrics.update(checkpoint_metrics)
+            metrics["checkpoint"] = checkpoint_name
 
         ### Caller-supplied extra metrics + validation ###
         if extra_metrics_fn is not None:
@@ -317,13 +320,18 @@ async def training_loop(
     already_saved = config.save_every > 0 and final_step > 0 and final_step % config.save_every == 0
     if final_step > 0 and not already_saved:
         log.info(f"Saving final DPO checkpoint at step {final_step}")
-        _, final_save_metrics = await save_checkpoint_and_get_sampling_client(
+        checkpoint_name, sampler_path = await save_checkpoint(
             training_client,
             final_step,
             config.log_path,
             config.ttl_seconds,
-            on_checkpoint_save=on_checkpoint_save,
         )
+        if on_checkpoint_save is not None:
+            cb_result = on_checkpoint_save(final_step, checkpoint_name, sampler_path)
+            if inspect.isawaitable(cb_result):
+                await cb_result
+
+        final_save_metrics = {"checkpoint": checkpoint_name}
         log_metrics(final_save_metrics, step=final_step - 1)
         if wandb_run is not None:
             wandb.log(final_save_metrics, step=final_step - 1)

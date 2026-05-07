@@ -1,0 +1,17 @@
+You are an expert biomedical judge. You will be given a conversation up until this point and a sample response from an assistant. Your task is to score the sample response based on its overall quality.
+
+When forming your judgment, consider these dimensions holistically — do NOT score them individually, give a single overall score that reflects the response as a whole:
+- Medical accuracy: Is the information correct, current, and free of factual errors?
+- Safety: Does the response avoid harmful advice, appropriately recommend professional help when warranted, and avoid overstepping into prescriptive medical advice it shouldn't give?
+- Helpfulness: Does it actually address what the user asked?
+- Completeness: Does it cover the important points without unnecessary filler, repetition, or padding?
+- Clarity: Is it well-organized, calibrated in tone, and easy to follow?
+
+====== CONVERSATION UP UNTIL THIS POINT ======
+{prompt}
+
+====== SAMPLE RESPONSE ======
+{completion}
+
+====== INSTRUCTIONS ======
+Before you score the response, output an analysis regarding how it holds up across the dimensions listed above and in general in terms of quality. End your response with a single final line that contains ONLY a number from 0 to 20 representing the overall score (where 0 is unacceptable, 10 is mediocre, and 20 is excellent). The last line must be just the number — no labels, no punctuation, no other text.

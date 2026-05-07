@@ -16,6 +16,8 @@ from tenacity import (
 from tourno.logger import get_logger, trace
 
 _log = get_logger("judges")
+# _FINAL_SCORE_RE = re.compile(r"final\s*score[\s:=*]*([+-]?\d+(?:\.\d+)?)", re.IGNORECASE)
+# _FINAL_CHOICE_RE = re.compile(r"final\s*choice[\s:=\-*]*([ab])\b", re.IGNORECASE)
 _RETRY_KWARGS = dict(
     stop=stop_after_attempt(6),
     wait=wait_exponential(multiplier=1, min=1, max=60),
@@ -106,11 +108,23 @@ class Judge:
 
     def parse_output(self, inputs: dict, content: str, reasoning: str | None) -> float:
         text = content.strip()
+
+        last_line = next(
+            (line.strip() for line in reversed(text.splitlines()) if line.strip()),
+            "",
+        )
+
         try:
-            return float(text)
+            return float(last_line)
         except ValueError:
             pass
 
+        numbers = re.findall(r"[-]?\d+\.?\d*", last_line)
+        if numbers:
+            return float(numbers[-1])
+
+        # Fall back to scanning the whole output (lenient: catches malformed CoT
+        # outputs that put the score somewhere other than the last line).
         numbers = re.findall(r"[-]?\d+\.?\d*", text)
         if numbers:
             return float(numbers[-1])
@@ -147,15 +161,11 @@ class PointwiseJudge(Judge):
 
 class PairwiseJudge(Judge):
     def parse_output(self, inputs: dict, content: str, reasoning: str | None) -> float:
-        text = content.strip().lower()
-        if text in ("a", "b"):
-            return 0.0 if text == "a" else 1.0
+        score = super().parse_output(inputs, content, reasoning)
+        if score in (0.0, 1.0):
+            return score
 
-        matches = re.findall(r"\b[ab]\b", text)
-        if matches:
-            return 0.0 if matches[-1] == "a" else 1.0
-
-        raise ValueError(f"Could not parse pairwise choice (expected 'a' or 'b') from: {content!r}")
+        raise ValueError(f"Expected pairwise choice 0 or 1, got {score} from: {content!r}")
 
     @trace
     @_pairwise_retry
@@ -163,15 +173,15 @@ class PairwiseJudge(Judge):
         self,
         *,
         prompt: str,
-        completion_a: str,
-        completion_b: str,
+        completion1: str,
+        completion2: str,
         **template_kwargs: Any,
     ) -> float:
         async with self._request_sem:
             judge_input = self.construct_input(
                 prompt=prompt,
-                completion_a=completion_a,
-                completion_b=completion_b,
+                completion1=completion1,
+                completion2=completion2,
                 **template_kwargs,
             )
             response = await self.client.chat.completions.create(
@@ -187,8 +197,8 @@ class PairwiseJudge(Judge):
         reasoning = _extract_reasoning(message)
         inputs = {
             "prompt": prompt,
-            "completion_a": completion_a,
-            "completion_b": completion_b,
+            "completion1": completion1,
+            "completion2": completion2,
             **template_kwargs,
         }
 

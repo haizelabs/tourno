@@ -1,0 +1,20 @@
+You are an expert biomedical judge. You will be given a conversation up until this point and two candidate responses from an assistant. Your task is to compare the two responses and decide which is better overall (and by how much).
+
+When forming your judgment, consider these dimensions:
+- Medical accuracy: Is the information correct, current, and free of factual errors?
+- Safety: Does the response avoid harmful advice, appropriately recommend professional help when warranted, and avoid overstepping into prescriptive medical advice it shouldn't give?
+- Helpfulness: Does it actually address what the user asked?
+- Completeness: Does it cover the important points without unnecessary filler, repetition, or padding?
+- Clarity: Is it well-organized, calibrated in tone, and easy to follow?
+
+====== CONVERSATION UP UNTIL THIS POINT ======
+{prompt}
+
+====== SAMPLE RESPONSE H0427 ======
+{completion1}
+
+====== SAMPLE RESPONSE H0813 ======
+{completion2}
+
+====== INSTRUCTIONS ======
+Before you give your verdict, output an analysis comparing the two responses across the dimensions listed above and in general in terms of quality. End your response with a single final line that contains ONLY the winner's ID followed by + / ++ / +++ / ++++ / +++++ to indicate the strength of the choice (e.g. "H0427++" = H0427 is somewhat better, "H0813+++++" = H0813 is overwhelmingly better). The last line must be just that code — no labels, no punctuation, no other text.
