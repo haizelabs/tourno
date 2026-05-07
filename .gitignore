@@ -11,6 +11,6 @@ figures/
 cwbench-rl/
 .scratch/
 logs/
-truthfulqa-rl
+truthfulqa-rl/
 cwbench-dpo/
 rewardbench2-rl/

@@ -16,8 +16,6 @@ from tenacity import (
 from tourno.logger import get_logger, trace
 
 _log = get_logger("judges")
-# _FINAL_SCORE_RE = re.compile(r"final\s*score[\s:=*]*([+-]?\d+(?:\.\d+)?)", re.IGNORECASE)
-# _FINAL_CHOICE_RE = re.compile(r"final\s*choice[\s:=\-*]*([ab])\b", re.IGNORECASE)
 _RETRY_KWARGS = dict(
     stop=stop_after_attempt(6),
     wait=wait_exponential(multiplier=1, min=1, max=60),
