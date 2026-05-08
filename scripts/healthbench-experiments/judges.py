@@ -44,4 +44,7 @@ def _parse_pairwise_response(text: str) -> float:
 
 class HealthBenchPairwiseJudge(PairwiseJudge):
     def parse_output(self, inputs: dict, content: str, reasoning: str | None) -> float:
-        return _parse_pairwise_response(content)
+        try:
+            return _parse_pairwise_response(content)
+        except ValueError:
+            return super().parse_output(inputs, content, reasoning)
