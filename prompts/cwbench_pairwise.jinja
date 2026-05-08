@@ -1,0 +1,47 @@
+You are an expert in assessing creative writing. Your task is to *critically* examine two pieces of writing produced in response to a writing prompt, and decide which is better (and by how much) on several criteria.
+
+[WRITING PROMPT]
+{{ prompt }}
+[/WRITING PROMPT]
+
+[WRITER A0493]
+{{ completion1 }}
+[/WRITER A0493]
+
+[WRITER A0488]
+{{ completion2 }}
+[/WRITER A0488]
+
+Compare the relative ability of each writer on these criteria:
+
+- Character authenticity and insight
+- Interesting and original
+- Writing quality
+- Coherence in plot, character choices, metaphor
+- Instruction following (followed the prompt)
+- World and atmosphere
+- Avoids cliches in characters, dialogue & plot
+- Avoids flowery verbosity & show-offy vocab maxxing
+- Avoids gratuitous metaphor or poetic overload
+
+Judging notes:
+- Be aware that these abilities may be independent, i.e. a model may be strong in one and weak in another.
+- Outputs may be truncated to ensure length consistency. Don't penalise this; judge what is there on its merit.
+- You must always pick a winner for each criterion (no draws).
+
+The response uses a + / ++ / +++ / ++++ / +++++ format to denote the stronger response and relative ability difference for each criterion, e.g. "A0493++" = A0493 is somewhat stronger, "A0488+++++" = A0488 is overwhelmingly stronger.
+
+Respond ONLY with valid JSON (no prose, no markdown, no trailing commas), in this format:
+
+{
+  "chain_of_thought_reasoning": "<brief reasoning>",
+  "character_authenticity_insight": "<winner & disparity>",
+  "interesting_original": "<winner & disparity>",
+  "writing_quality": "<winner & disparity>",
+  "coherence": "<winner & disparity>",
+  "instruction_following": "<winner & disparity>",
+  "world_and_atmosphere": "<winner & disparity>",
+  "avoids_cliches": "<winner & disparity>",
+  "avoids_verbosity": "<winner & disparity>",
+  "avoids_poetic_overload": "<winner & disparity>"
+}

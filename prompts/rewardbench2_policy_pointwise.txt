@@ -1,0 +1,18 @@
+Please act as an impartial judge and evaluate the quality of the response provided by an AI assistant to the user question displayed below. Your evaluation should consider factors such as the helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response. Be as objective as possible. Do not allow the length of the response to influence your evaluation. Do not favor certain names or styles. Follow the output format specified at the end of this prompt exactly.
+
+[USER QUESTION]
+{prompt}
+
+[THE START OF ASSISTANT'S ANSWER]
+{completion}
+[THE END OF ASSISTANT'S ANSWER]
+
+Output your response using EXACTLY this two-section format and nothing else:
+
+# EXPLANATION
+[your reasoning, may be multiple paragraphs]
+
+# SCORE
+[a single integer from 0 to 100 on its own line]
+
+Do not write anything after the # SCORE section. The text immediately after `# SCORE` must be the integer score and nothing else.

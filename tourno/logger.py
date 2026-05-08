@@ -137,40 +137,8 @@ def trace(fn):
     return wrapper
 
 
-### Docent Logging ###
-_docent_writer = None
+def init_weave(project_name: str) -> None:
+    import weave
 
-
-def init_docent(collection_name: str) -> None:
-    global _docent_writer
-    import docent
-
-    _docent_writer = docent.init(collection_name=collection_name)
-    get_logger().info(f"Docent logging enabled: collection={collection_name}")
-
-
-def finish_docent() -> None:
-    global _docent_writer
-    if _docent_writer is not None:
-        _docent_writer.finish()
-        _docent_writer = None
-
-
-def log_agent_run(
-    messages: list[dict[str, str]],
-    metadata: dict,
-) -> None:
-    if _docent_writer is None:
-        return
-
-    from docent.data_models import AgentRun, Transcript
-    from docent.data_models.chat import parse_chat_message
-
-    chat_messages = [
-        parse_chat_message({"role": m["role"], "content": m["content"]}) for m in messages
-    ]
-    run = AgentRun(
-        transcripts=[Transcript(messages=chat_messages)],
-        metadata=metadata,
-    )
-    _docent_writer.log_agent_runs([run])
+    weave.init(project_name)
+    get_logger().info(f"Weave tracing enabled: project={project_name}")

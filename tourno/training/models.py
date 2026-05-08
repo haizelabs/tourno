@@ -2,7 +2,7 @@ from typing import Any
 
 import tinker
 
-from pioneer.logger import get_logger
+from tourno.logger import get_logger
 
 
 async def get_sampling_client(
