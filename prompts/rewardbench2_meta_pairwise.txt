@@ -1,0 +1,33 @@
+Please act as an impartial meta-judge and evaluate the quality of two AI judges' reasoning traces shown below. Both judges were given the SAME user question and assistant response, and each produced a written analysis ending with a numeric verdict (each judge's own score for the assistant response, on a 0-100 scale).
+
+Your evaluation is of the JUDGES' TRACES, not of the assistant response, and not of which final verdict number is "right". Consider:
+- Relevance of each trace to the question and response
+- Accuracy of the claims each makes about the response
+- Depth and rigor of analysis
+- How well each verdict follows from its reasoning
+
+Avoid any position biases and ensure that the order in which the traces were presented does not influence your decision. Do not allow the length of the traces to influence your evaluation. Be as objective as possible. Follow the output format specified at the end of this prompt exactly.
+
+[USER QUESTION]
+{prompt}
+
+[ASSISTANT RESPONSE]
+{responses_section}
+
+[THE START OF JUDGE A'S TRACE AND VERDICT]
+{completion1}
+[THE END OF JUDGE A'S TRACE AND VERDICT]
+
+[THE START OF JUDGE B'S TRACE AND VERDICT]
+{completion2}
+[THE END OF JUDGE B'S TRACE AND VERDICT]
+
+Output your response using EXACTLY this two-section format and nothing else:
+
+# EXPLANATION
+[your comparative reasoning, may be multiple paragraphs]
+
+# SCORES
+[[score_a, score_b]]
+
+Where score_a is your rating of Judge A's trace QUALITY (0 to 100) and score_b is your rating of Judge B's trace QUALITY (0 to 100). Use plain integers separated by a comma — do NOT include labels like "score_a:" inside the brackets. Equal scores indicate a tie. Do not write anything after the # SCORES line.

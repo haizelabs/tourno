@@ -8,3 +8,9 @@ scrap/
 healthbench-rl*
 healthbench-results/
 figures/
+cwbench-rl/
+.scratch/
+logs/
+truthfulqa-rl/
+cwbench-dpo/
+rewardbench2-rl/
