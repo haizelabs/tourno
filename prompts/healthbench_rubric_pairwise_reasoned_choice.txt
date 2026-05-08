@@ -6,15 +6,15 @@ You are an expert biomedical judge. You will be given a rubric, a conversation u
 ====== CONVERSATION UP UNTIL THIS POINT ======
 {prompt}
 
-====== SAMPLE RESPONSE A ======
-{completion_a}
+====== SAMPLE RESPONSE 1 ======
+{completion1}
 
-====== SAMPLE RESPONSE B ======
-{completion_b}
+====== SAMPLE RESPONSE 2 ======
+{completion2}
 
 ====== INSTRUCTIONS ======
 Think step by step. Carefully consider the rubric and how each criterion in it applies to each sample response. End your response with EXACTLY one line in the following format, and write nothing after it:
 
-FINAL CHOICE: <A or B>
+FINAL CHOICE: <0 or 1>
 
-where <A or B> is A if SAMPLE RESPONSE A is better overall and B if SAMPLE RESPONSE B is better overall under RUBRIC.
+where <0 or 1> is 0 if SAMPLE RESPONSE 1 is better overall and 1 if SAMPLE RESPONSE 2 is better overall under RUBRIC.

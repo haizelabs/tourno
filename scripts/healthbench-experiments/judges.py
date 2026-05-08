@@ -2,8 +2,8 @@ import re
 
 from tourno.eval.judges import PairwiseJudge
 
-RESPONDENT_A = "H0427"
-RESPONDENT_B = "H0813"
+RESPONDENT_A = "RESPONSE_1"
+RESPONDENT_B = "RESPONSE_2"
 MARGIN_TABLE = {0: 0.0, 1: 0.2, 2: 0.4, 3: 0.6, 4: 0.8, 5: 1.0}
 
 _MARGIN_RE = re.compile(rf"({re.escape(RESPONDENT_A)}|{re.escape(RESPONDENT_B)})(\++)?")
@@ -37,7 +37,7 @@ def _parse_pairwise_response(text: str) -> float:
             raise ValueError(f"No respondent code in: {text[-300:]!r}") from None
         respondent, pluses = matches[-1]
         margin = _parse_margin(f"{respondent}{pluses}")
-    # Convention: margin=+1 -> H0427 (= completion_a) wins fully.
+    # Convention: margin=+1 -> RESPONSE_1 wins fully.
     # Tourno's batched_elo_rewards expects 0=a_wins / 1=b_wins, so flip here.
     return 1.0 - (margin + 1.0) / 2.0
 

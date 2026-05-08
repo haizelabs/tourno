@@ -10,11 +10,11 @@ When forming your judgment, consider these dimensions:
 ====== CONVERSATION UP UNTIL THIS POINT ======
 {prompt}
 
-====== SAMPLE RESPONSE H0427 ======
+====== SAMPLE RESPONSE RESPONSE_1 ======
 {completion1}
 
-====== SAMPLE RESPONSE H0813 ======
+====== SAMPLE RESPONSE RESPONSE_2 ======
 {completion2}
 
 ====== INSTRUCTIONS ======
-Before you give your verdict, output an analysis comparing the two responses across the dimensions listed above and in general in terms of quality. End your response with a single final line that contains ONLY the winner's ID followed by + / ++ / +++ / ++++ / +++++ to indicate the strength of the choice (e.g. "H0427++" = H0427 is somewhat better, "H0813+++++" = H0813 is overwhelmingly better). The last line must be just that code — no labels, no punctuation, no other text.
+Before you give your verdict, output an analysis comparing the two responses across the dimensions listed above and in general in terms of quality. End your response with a single final line that contains ONLY the winner's response ID followed by + / ++ / +++ / ++++ / +++++ to indicate the strength of the choice (e.g. "RESPONSE_1++" = RESPONSE_1 is somewhat better, "RESPONSE_2+++++" = RESPONSE_2 is overwhelmingly better). The last line must be just that code — no labels, no punctuation, no other text.
